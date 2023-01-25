@@ -1,7 +1,8 @@
 name: Terraform CI - Validate
 
 on:
-  [push]
+# disable for now, bc we need AWS auth too
+#   [push]
 
 jobs:
   validate:
@@ -15,7 +16,7 @@ jobs:
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
       EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
-      EXAMPLE_TENANT_SA_ID: 123456712345671234567
+      EXAMPLE_TENANT_SA_ID: 104184075060961394622
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out code
@@ -33,12 +34,26 @@ jobs:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
+      # TODO : auth AWS CLI using GCP SA for workload identity federation *or* directly
+      # configuring a target AWS role to trust this GitHub repo:
+      # eg, https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#adding-the-identity-provider-to-aws
+      # AWS role needs to be able to create IAM roles, IAM policies, and S3 buckets at a minimum
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::626567183302:role/gh_action_ci_agent
+          role-session-name: github_ci
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: 'Terraform - integration test examples/basic'
         working-directory: examples/basic
         run: |
+          export CI_RUN=`date +%Y%m%d'T'%H%M%S`
           terraform init
-          terraform apply -var="worklytics_tenant_id=\"${{ env.EXAMPLE_TENANT_SA_ID }}\"" -auto-approve
+          terraform apply -var="bucket_name_prefix=\"terraform_aws_worklytics_export_ci_${CI_RUN}\"" -var="worklytics_tenant_id=\"${{ env.EXAMPLE_TENANT_SA_ID }}\"" -auto-approve
           export BUCKET_NAME=$(terraform output worklytics_export_bucket.name)
           export IAM_ROLE=$(terraform output worklytics_tenant_aws_role.arn)
           ../../test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} $BUCKET_NAME $IAM_ROLE
+          terraform destroy -auto-approve
 
