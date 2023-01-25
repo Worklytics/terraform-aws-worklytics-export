@@ -5,5 +5,5 @@
 module "worklytics_export" {
   source = "../../"
 
-  worklytics_tenant_id = "123456712345671234567"
+  worklytics_tenant_id = var.worklytics_tenant_id
 }

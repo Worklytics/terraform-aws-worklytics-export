@@ -1,3 +1,7 @@
-**/.terraform.tfvars
+
+# ignore variable files for examples; assume people are testing in dev or something
+**/terraform.tfvars
+
+# ignore .terraform state/lock files; again, presume people are playing with examples in dev or something
 **/.terraform
 **/.terraform.lock.hcl
