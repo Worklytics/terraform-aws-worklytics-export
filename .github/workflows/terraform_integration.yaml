@@ -1,8 +1,7 @@
 name: Terraform CI - Validate
 
 on:
-# disable for now, bc we need AWS auth too
-#   [push]
+  [push]
 
 jobs:
   validate:
