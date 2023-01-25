@@ -1,0 +1,44 @@
+name: Terraform CI - Validate
+
+on:
+  [push]
+
+jobs:
+  validate:
+    name: 'Terraform validate'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    env:
+      TERRAFORM_VERSION: 1.3.7
+      CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
+      GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
+      EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
+      EXAMPLE_TENANT_SA_ID: 123456712345671234567
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: 'setup Terraform'
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - id: 'auth-gcp'
+        name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
+          service_account: ${{ env.CI_SA_EMAIL }}
+
+      - name: 'Terraform - integration test examples/basic'
+        working-directory: examples/basic
+        run: |
+          terraform init
+          terraform apply -var="worklytics_tenant_id=\"${{ env.EXAMPLE_TENANT_SA_ID }}\"" -auto-approve
+          export BUCKET_NAME=$(terraform output worklytics_export_bucket.name)
+          export IAM_ROLE=$(terraform output worklytics_tenant_aws_role.arn)
+          ../../test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} $BUCKET_NAME $IAM_ROLE
+
