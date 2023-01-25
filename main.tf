@@ -8,6 +8,27 @@ terraform {
   }
 }
 
+resource "aws_iam_role" "worklytics_tenant" {
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = "accounts.google.com"
+        }
+        Condition = {
+          StringEquals = {
+            "accounts.google.com:aud" : var.worklytics_tenant_id
+          }
+        }
+      }
+    ]
+  })
+}
+
+
 resource "aws_s3_bucket" "worklytics_export" {
   bucket_prefix = var.bucket_name_prefix
 
@@ -25,6 +46,7 @@ resource "aws_s3_bucket_acl" "worklytics_export_private" {
 }
 
 # TODO if key, need perm to "kms:GenerateDataKey" and "kms:Decrypt" ??
+# q - do we leave that to customer, or support it natively since pretty common case??
 
 resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   count = var.worklytics_tenant_id == null ? 0 : 1
@@ -35,12 +57,7 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
         sid    = "AllowWorklyticsTenantBucketAccess"
         effect = "Allow"
         principal = {
-          federated = "accounts.google.com"
-          condition = {
-            "StringEquals" = {
-              "accounts.google.com:aud" : var.worklytics_tenant_id
-            }
-          }
+          AWS = aws_iam_role.worklytics_tenant.arn
         }
         actions = [
           "s3:PutObject",
