@@ -52,21 +52,23 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   count = var.worklytics_tenant_id == null ? 0 : 1
 
   policy = jsonencode({
-    statement = [
+    Version =  "2012-10-17",
+    Id = "WorklyticsTenantBucketAccess",
+    Statement = [
       {
-        sid    = "AllowWorklyticsTenantBucketAccess"
-        effect = "Allow"
-        principal = {
+        Sid    = "AllowWorklyticsTenantBucketAccess"
+        Effect = "Allow"
+        Principal = {
           AWS = aws_iam_role.worklytics_tenant.arn
         }
-        action = [
+        Action = [
           "s3:PutObject",
 
           # to support rsync, has to be able to list and get objects
           "s3:GetObject",
           "s3:ListBucket"
         ]
-        resource = [
+        Resource = [
           "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}",
           "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}/*"
         ]
