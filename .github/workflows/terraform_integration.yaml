@@ -65,4 +65,5 @@ jobs:
         if: always() # try to force this to ALWAYS happen, no matter if previous stuff failed
         working-directory: examples/basic
         run: |
+          aws s3 rm s3://${{ steps.terraform_apply.outputs.worklytics_export_bucket_id }} --recursive
           terraform destroy -auto-approve -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"

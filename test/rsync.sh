@@ -32,4 +32,6 @@ $(aws sts assume-role-with-web-identity \
 # NOTE : presuming that it's OK we overwrote prior AWS env vars, bc next gh action run will reset
 
 # if bucket exists + perms OK, this should work
-aws s3 sync . s3://$BUCKET_NAME/${CI_RUN}
+mkdir /tmp/$CI_RUN
+cat "TEST" > /tmp/$CI_RUN/test.txt
+aws s3 sync /tmp/$CI_RUN s3://$BUCKET_NAME
