@@ -5,7 +5,7 @@ on:
 
 jobs:
   validate:
-    name: 'Terraform validate'
+    name: 'Terraform integration'
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -17,6 +17,7 @@ jobs:
       EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
       EXAMPLE_TENANT_SA_ID: 104184075060961394622
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AWS_REGION: 'us-west-2'
     steps:
       - name: Check out code
         uses: actions/checkout@v3
