@@ -20,7 +20,7 @@ resource "aws_iam_role" "worklytics_tenant" {
         }
         Condition = {
           StringEquals = {
-            "accounts.google.com:aud" = "${var.worklytics_tenant_id}"
+            "accounts.google.com:aud" = var.worklytics_tenant_id
           }
         }
       }
@@ -59,12 +59,12 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
         principal = {
           AWS = aws_iam_role.worklytics_tenant.arn
         }
-        actions = [
+        action = [
           "s3:PutObject",
 
           # to support rsync, has to be able to list and get objects
           "s3:GetObject",
-          "s3:ListBucket",
+          "s3:ListBucket"
         ]
         resources = [
           "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}",
