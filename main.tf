@@ -30,7 +30,7 @@ resource "aws_iam_role" "worklytics_tenant" {
 
 
 resource "aws_s3_bucket" "worklytics_export" {
-  bucket_prefix = var.resource_name_prefix
+  bucket_prefix = replace(lower(var.resource_name_prefix), "_", "-")
 
   lifecycle {
     ignore_changes = [
