@@ -23,7 +23,7 @@ $(aws sts assume-role-with-web-identity \
 --role-arn $IAM_ROLE_ARN \
 --role-session-name "ci-run-${CI_RUN}" \
 --web-identity-token $GCP_TOKEN \
---provider-id "accounts.google.com" \
+# --provider-id "accounts.google.com" \
 --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
 --output text))
 
