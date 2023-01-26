@@ -1,4 +1,4 @@
-name: Terraform CI - Validate
+name: Terraform CI - Integration
 
 on:
   [push]
