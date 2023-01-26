@@ -4,8 +4,8 @@
 # ./rsync.sh
 
 EXAMPLE_TENANT_SA_EMAIL=$1
-BUCKET_NAME=$2
-IAM_ROLE_ARN=$3
+BUCKET_NAME=`terraform output worklytics_export_bucket.name`
+IAM_ROLE_ARN=`terraform output worklytics_tenant_aws_role.arn`
 
 # https://cloud.google.com/sdk/gcloud/reference/auth/print-identity-token
 CI_RUN=`date +%Y%m%d'T'%H%M%S`
