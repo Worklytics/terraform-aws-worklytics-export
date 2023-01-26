@@ -19,6 +19,11 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       AWS_REGION: 'us-west-2'
     steps:
+      - name: Get timestamp
+        id: timestamp
+        run: |
+          echo "{date}={$(date  +%Y%m%d'T'%H%M%S)}" >> $GITHUB_STATE
+
       - name: Check out code
         uses: actions/checkout@v3
 
@@ -50,9 +55,8 @@ jobs:
         id: 'integration_test_examples_basic'
         working-directory: examples/basic
         run: |
-          echo "CI_RUN=$(date +%Y%m%d'T'%H%M%S)" >> $GITHUB_OUTPUT
           terraform init
-          terraform apply -var="resource_name_prefix=terraform_aws_worklytics_export_ci_${{ steps.integration_test_examples_basic.output.CI_RUN }}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
+          terraform apply -var="resource_name_prefix=terraform_aws_worklytics_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
 
       - name: Get outputs
         id: tf-outputs
@@ -62,7 +66,9 @@ jobs:
 
       - name: 'Terraform - integration test examples/basic s3 write'
         run: |
-          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).id }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
+          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} `terraform output worklytics_export_bucket.id` `terraform output worklytics_tenant_aws_role.arn`
+
+      # ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).id }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
 
 # q: how can we force this destroy to ALWAYS happen, even if rsync fails??
       - name: 'Terraform - integration test examples/basic destroy'
