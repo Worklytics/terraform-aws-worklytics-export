@@ -46,13 +46,25 @@ jobs:
           role-session-name: github_ci
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: 'Terraform - integration test examples/basic'
+      - name: 'Terraform - integration test examples/basic apply'
         id: 'integration_test_examples_basic'
         working-directory: examples/basic
         run: |
           echo "CI_RUN=$(date +%Y%m%d'T'%H%M%S)" >> $GITHUB_OUTPUT
           terraform init
           terraform apply -var="bucket_name_prefix='terraform_aws_worklytics_export_ci_${{ steps.integration_test_examples_basic.output.CI_RUN }}'" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
-          ../../test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }}
-          terraform destroy -auto-approve
 
+      - name: Get outputs
+        uses: dflook/terraform-output@v1
+        id: tf-outputs
+        working-directory: examples/basic
+
+      - name: 'Terraform - integration test examples/basic s3 write'
+        run: |
+          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ steps.tf-outputs.outputs.worklytics_export_bucket.name }} ${{ steps.tf-outputs.outputs.worklytics_tenant_aws_role.arn }}
+
+      - name: 'Terraform - integration test examples/basic destroy'
+        id: 'integration_test_examples_basic_destroy'
+        working-directory: examples/basic
+        run: |
+          terraform destroy -auto-approve
