@@ -14,9 +14,9 @@ CI_RUN=`date +%Y%m%d'T'%H%M%S`
 # that can impersonate the target service account
 GCP_TOKEN=`gcloud auth print-identity-token --impersonate-service-account=${EXAMPLE_TENANT_SA_EMAIL}`
 
-echo "EXAMPLE_TENANT_SA_EMAIL: ${EXAMPLE_TENANT_SA_EMAIL}\n"
-echo "BUCKET_NAME: ${BUCKET_NAME}\n"
-echo "IAM_ROLE_ARN: ${IAM_ROLE_ARN}\n"
+echo "EXAMPLE_TENANT_SA_EMAIL: ${EXAMPLE_TENANT_SA_EMAIL}"
+echo "BUCKET_NAME: ${BUCKET_NAME}"
+echo "IAM_ROLE_ARN: ${IAM_ROLE_ARN}"
 
 export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
 $(aws sts assume-role-with-web-identity \
@@ -26,6 +26,10 @@ $(aws sts assume-role-with-web-identity \
 # --provider-id "accounts.google.com" \
 --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
 --output text))
+
+echo "AccessKeyId: ${AWS_ACCESS_KEY_ID}"
+echo "SecretAccessKey: ${AWS_SECRET_ACCESS_KEY}"
+echo "SessionToken: ${AWS_SESSION_TOKEN}"
 
 # NOTE : presuming that it's OK we overwrote prior AWS env vars, bc next gh action run will reset
 
