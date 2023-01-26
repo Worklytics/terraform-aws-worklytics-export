@@ -53,8 +53,6 @@ jobs:
           echo "CI_RUN=$(date +%Y%m%d'T'%H%M%S)" >> $GITHUB_OUTPUT
           terraform init
           terraform apply -var="bucket_name_prefix='terraform_aws_worklytics_export_ci_${{ steps.integration_test_examples_basic.output.CI_RUN }}'" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
-          export BUCKET_NAME=`terraform output worklytics_export_bucket.name`
-          export IAM_ROLE=`terraform output worklytics_tenant_aws_role.arn`
-          ../../test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} $BUCKET_NAME $IAM_ROLE
+          ../../test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }}
           terraform destroy -auto-approve
 
