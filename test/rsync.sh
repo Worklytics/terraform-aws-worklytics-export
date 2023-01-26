@@ -33,5 +33,5 @@ $(aws sts assume-role-with-web-identity \
 
 # if bucket exists + perms OK, this should work
 mkdir /tmp/$CI_RUN
-cat "TEST" > /tmp/$CI_RUN/test.txt
+echo "TEST" > /tmp/$CI_RUN/test.txt
 aws s3 sync /tmp/$CI_RUN s3://$BUCKET_NAME
