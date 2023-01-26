@@ -66,9 +66,9 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
           "s3:GetObject",
           "s3:ListBucket"
         ]
-        resources = [
+        resource = [
           "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}",
-          "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}/*",
+          "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}/*"
         ]
       },
     ]
