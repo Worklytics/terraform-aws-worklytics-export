@@ -22,7 +22,7 @@ jobs:
       - name: Get timestamp
         id: timestamp
         run: |
-          echo "{date}={$(date  +%Y%m%d'T'%H%M%S)}" >> $GITHUB_STATE
+          echo "{timestamp}={$(date  +%Y%m%d'T'%H%M%S)}" >> $GITHUB_STATE
 
       - name: Check out code
         uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
         working-directory: examples/basic
         run: |
           terraform init
-          terraform apply -var="resource_name_prefix=terraform_aws_worklytics_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
+          terraform apply -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
 
       - name: Get outputs
         id: tf-outputs
