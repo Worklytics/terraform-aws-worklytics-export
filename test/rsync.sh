@@ -29,10 +29,6 @@ $(aws sts assume-role-with-web-identity \
 # there's a provider-id arg, but gives error that you shouldn't send it w openid token
 # --provider-id "accounts.google.com" \
 
-echo "AccessKeyId: ${AWS_ACCESS_KEY_ID}"
-echo "SecretAccessKey: ${AWS_SECRET_ACCESS_KEY}"
-echo "SessionToken: ${AWS_SESSION_TOKEN}"
-
 # NOTE : presuming that it's OK we overwrote prior AWS env vars, bc next gh action run will reset
 
 # if bucket exists + perms OK, this should work

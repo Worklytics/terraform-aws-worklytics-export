@@ -64,8 +64,9 @@ jobs:
         run: |
           ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).id }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
 
+# q: how can we force this destroy to ALWAYS happen, even if rsync fails??
       - name: 'Terraform - integration test examples/basic destroy'
         id: 'integration_test_examples_basic_destroy'
         working-directory: examples/basic
         run: |
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
