@@ -49,7 +49,7 @@ resource "aws_s3_bucket_acl" "worklytics_export_private" {
 # q - do we leave that to customer, or support it natively since pretty common case??
 
 resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
-  name =  "${var.resource_name_prefix}TenantBucketAccess"
+  name = "${var.resource_name_prefix}TenantBucketAccess"
 
   policy = jsonencode({
     Version = "2012-10-17",
