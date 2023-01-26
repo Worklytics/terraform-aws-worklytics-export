@@ -1,8 +1,8 @@
 
-variable "bucket_name_prefix" {
+variable "resource_name_prefix" {
   type        = string
-  description = "Prefix to give to bucket name that will hold export data."
-  default     = "worklytics-export"
+  description = "Prefix to give to names of infra created by this module, where appicable."
+  default     = "worklytics-export-"
 }
 
 variable "worklytics_tenant_id" {

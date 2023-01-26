@@ -12,6 +12,7 @@ terraform {
 module "worklytics_export" {
   source = "../../"
 
+  resource_name_prefix   = var.bucket_name_prefix
   worklytics_tenant_id = var.worklytics_tenant_id
 }
 

@@ -9,6 +9,8 @@ terraform {
 }
 
 resource "aws_iam_role" "worklytics_tenant" {
+  name = "${var.resource_name_prefix}Tenant"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = {
@@ -28,7 +30,7 @@ resource "aws_iam_role" "worklytics_tenant" {
 
 
 resource "aws_s3_bucket" "worklytics_export" {
-  bucket_prefix = var.bucket_name_prefix
+  bucket_prefix = var.resource_name_prefix
 
   lifecycle {
     ignore_changes = [
@@ -47,6 +49,7 @@ resource "aws_s3_bucket_acl" "worklytics_export_private" {
 # q - do we leave that to customer, or support it natively since pretty common case??
 
 resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
+  name =  "${var.resource_name_prefix}TenantBucketAccess"
 
   policy = jsonencode({
     Version = "2012-10-17",
