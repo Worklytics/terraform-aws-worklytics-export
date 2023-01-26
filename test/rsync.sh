@@ -23,9 +23,11 @@ $(aws sts assume-role-with-web-identity \
 --role-arn $IAM_ROLE_ARN \
 --role-session-name "ci-run-${CI_RUN}" \
 --web-identity-token $GCP_TOKEN \
-# --provider-id "accounts.google.com" \
 --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
 --output text))
+
+# there's a provider-id arg, but gives error that you shouldn't send it w openid token
+# --provider-id "accounts.google.com" \
 
 echo "AccessKeyId: ${AWS_ACCESS_KEY_ID}"
 echo "SecretAccessKey: ${AWS_SECRET_ACCESS_KEY}"
