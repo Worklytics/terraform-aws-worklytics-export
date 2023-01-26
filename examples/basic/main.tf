@@ -14,3 +14,11 @@ module "worklytics_export" {
 
   worklytics_tenant_id = var.worklytics_tenant_id
 }
+
+output "worklytics_export_bucket" {
+  value = module.worklytics_export.worklytics_export_bucket
+}
+
+output "worklytics_tenant_aws_role" {
+  value = module.worklytics_export.worklytics_tenant_aws_role
+}
