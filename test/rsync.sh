@@ -14,6 +14,7 @@ CI_RUN=`date +%Y%m%d'T'%H%M%S`
 # that can impersonate the target service account
 GCP_TOKEN=`gcloud auth print-identity-token --impersonate-service-account=${EXAMPLE_TENANT_SA_EMAIL}`
 
+echo "EXAMPLE_TENANT_SA_EMAIL: ${EXAMPLE_TENANT_SA_EMAIL}\n"
 echo "BUCKET_NAME: ${BUCKET_NAME}\n"
 echo "IAM_ROLE_ARN: ${IAM_ROLE_ARN}\n"
 
