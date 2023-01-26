@@ -20,7 +20,7 @@ resource "aws_iam_role" "worklytics_tenant" {
         }
         Condition = {
           StringEquals = {
-            "accounts.google.com:aud" : "\"${var.worklytics_tenant_id}\""
+            "accounts.google.com:aud" = "${var.worklytics_tenant_id}"
           }
         }
       }
