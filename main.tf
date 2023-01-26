@@ -11,20 +11,18 @@ terraform {
 resource "aws_iam_role" "worklytics_tenant" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Effect = "Allow"
-        Principal = {
-          Federated = "accounts.google.com"
-        }
-        Condition = {
-          StringEquals = {
-            "accounts.google.com:aud" = var.worklytics_tenant_id
-          }
+    Statement = {
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Effect = "Allow"
+      Principal = {
+        Federated = "accounts.google.com"
+      }
+      Condition = {
+        StringEquals = {
+          "accounts.google.com:aud" = var.worklytics_tenant_id
         }
       }
-    ]
+    }
   })
 }
 
@@ -49,18 +47,14 @@ resource "aws_s3_bucket_acl" "worklytics_export_private" {
 # q - do we leave that to customer, or support it natively since pretty common case??
 
 resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
-  count = var.worklytics_tenant_id == null ? 0 : 1
 
   policy = jsonencode({
     Version =  "2012-10-17",
-    Id = "WorklyticsTenantBucketAccess",
+    Id = "WorklyticsTenantAccessExportBucket",
     Statement = [
       {
         Sid    = "AllowWorklyticsTenantBucketAccess"
         Effect = "Allow"
-        Principal = {
-          AWS = aws_iam_role.worklytics_tenant.arn
-        }
         Action = [
           "s3:PutObject",
 
@@ -77,4 +71,11 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   })
 }
 
+resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
+  name = "allow_worklytics_tenant_bucket_access"
+  policy_arn = aws_iam_policy.allow_worklytics_tenant_bucket_access.arn
+  roles = [
+    aws_iam_role.worklytics_tenant.name
+  ]
+}
 
