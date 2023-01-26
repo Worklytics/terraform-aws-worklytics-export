@@ -22,7 +22,7 @@ jobs:
       - name: Get timestamp
         id: timestamp
         run: |
-          echo "{timestamp}={$(date  +%Y%m%d'T'%H%M%S)}" >> $GITHUB_STATE
+          echo "timestamp=$(date  +%Y%m%d'T'%H%M%S)" >> $GITHUB_ENV
 
       - name: Check out code
         uses: actions/checkout@v3
@@ -39,11 +39,7 @@ jobs:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
-      # TODO : auth AWS CLI using GCP SA for workload identity federation *or* directly
-      # configuring a target AWS role to trust this GitHub repo:
-      # eg, https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#adding-the-identity-provider-to-aws
-      # AWS role needs to be able to create IAM roles, IAM policies, and S3 buckets at a minimum
-
+      # see : https://github.com/aws-actions/configure-aws-credentials
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -52,23 +48,25 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: 'Terraform - integration test examples/basic apply'
-        id: 'integration_test_examples_basic'
+        id: terraform_apply
         working-directory: examples/basic
         run: |
           terraform init
           terraform apply -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
+          echo "{worklytics_export_bucket_id}={$(terraform output worklytics_export_bucket.id)}" >> $GITHUB_OUTPUT
+          echo "{worklytics_tenant_aws_role_arn}={$(terraform output worklytics_export_bucket.arn)}" >> $GITHUB_OUTPUT
 
-      - name: Get outputs
-        id: tf-outputs
-        uses: dflook/terraform-output@v1
-        with:
-          path: examples/basic
+#      - name: Get Terraform outputs
+#        id: tf-outputs
+#        uses: dflook/terraform-output@v1
+#        with:
+#          path: examples/basic
 
       - name: 'Terraform - integration test examples/basic s3 write'
         run: |
-          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} `terraform output worklytics_export_bucket.id` `terraform output worklytics_tenant_aws_role.arn`
+          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ steps.terraform_apply.outputs.worklytics_export_bucket_id }} ${{ steps.terraform_apply.outputs.worklytics_tenant_aws_role_arn }}
 
-      # ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).id }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
+#          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).id }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
 
 # q: how can we force this destroy to ALWAYS happen, even if rsync fails??
       - name: 'Terraform - integration test examples/basic destroy'
