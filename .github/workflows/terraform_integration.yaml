@@ -57,7 +57,7 @@ jobs:
       - name: Get outputs
         uses: dflook/terraform-output@v1
         id: tf-outputs
-        working-directory: examples/basic
+        path: examples/basic
 
       - name: 'Terraform - integration test examples/basic s3 write'
         run: |
