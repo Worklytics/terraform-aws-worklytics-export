@@ -17,4 +17,4 @@ GCP_TOKEN=`gcloud auth print-identity-token --impersonate-service-account=${EXAM
 aws sts assume-role-with-web-identity --role-arn IAM_ROLE_ARN --role-session-name "ci-run-${CI_RUN}" --web-identity-token $GCP_TOKEN --provider-id "accounts.google.com" > /tmp/assume-role.json
 
 # if bucket exists + perms OK, this should work
-s3 sync . s3://$BUCKET_NAME/${CI_RUN}
+aws s3 sync . s3://$BUCKET_NAME/${CI_RUN}
