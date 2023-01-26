@@ -31,6 +31,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
 
       - id: 'auth-gcp'
         name: 'Authenticate to Google Cloud'
@@ -53,8 +54,8 @@ jobs:
         run: |
           terraform init
           terraform apply -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
-          echo "{worklytics_export_bucket_id}={$(TF_LOG=WARN terraform output -raw worklytics_export_bucket_id)}" >> $GITHUB_OUTPUT
-          echo "{worklytics_tenant_aws_role_arn}={$(TF_LOG=WARN terraform output -raw worklytics_tenant_aws_role_arn)}" >> $GITHUB_OUTPUT
+          echo "{worklytics_export_bucket_id}={$(terraform output -raw worklytics_export_bucket_id)}" >> $GITHUB_OUTPUT
+          echo "{worklytics_tenant_aws_role_arn}={$(terraform output -raw worklytics_tenant_aws_role_arn)}" >> $GITHUB_OUTPUT
 
 #      - name: Get Terraform outputs
 #        id: tf-outputs
