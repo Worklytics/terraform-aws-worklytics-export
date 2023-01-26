@@ -1,7 +1,12 @@
 name: Terraform CI - Integration
 
 on:
-  [push]
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'rc-*'
+
 
 jobs:
   validate:
