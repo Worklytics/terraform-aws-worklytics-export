@@ -62,7 +62,7 @@ jobs:
 
       - name: 'Terraform - integration test examples/basic s3 write'
         run: |
-          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ steps.tf-outputs.outputs.worklytics_export_bucket.name }} ${{ steps.tf-outputs.outputs.worklytics_tenant_aws_role.arn }}
+          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_export_bucket).name }} ${{ fromJson(steps.tf-outputs.outputs.worklytics_tenant_aws_role).arn }}
 
       - name: 'Terraform - integration test examples/basic destroy'
         id: 'integration_test_examples_basic_destroy'
