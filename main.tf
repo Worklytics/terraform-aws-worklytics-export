@@ -8,7 +8,7 @@ terraform {
   }
 }
 
-resource "aws_iam_role" "worklytics_tenant" {
+resource "aws_iam_role" "for_worklytics_tenant" {
   name = "${var.resource_name_prefix}Tenant"
 
   assume_role_policy = jsonencode({
@@ -78,10 +78,9 @@ resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
   name       = "allow_worklytics_tenant_bucket_access"
   policy_arn = aws_iam_policy.allow_worklytics_tenant_bucket_access.arn
   roles = [
-    aws_iam_role.worklytics_tenant.name
+    aws_iam_role.for_worklytics_tenant.name
   ]
 }
-
 
 resource "local_file" "todo" {
   filename = "TODO - configure export in worklytics.md"
@@ -92,7 +91,7 @@ resource "local_file" "todo" {
   1. Go to [https://app.worklytics.co/](https://app.worklytics.co/), navigate to 'Export Data' and
      'Create new connection'.
   2. Set `Location` to `s3://${aws_s3_bucket.worklytics_export.bucket}`
-  3. Set `Role` to `${aws_iam_role.worklytics_tenant.arn}`
+  3. Set `Role` to `${aws_iam_role.for_worklytics_tenant.arn}`
 
 EOT
 

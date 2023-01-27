@@ -7,5 +7,5 @@ output "worklytics_export_bucket" {
 }
 
 output "worklytics_tenant_aws_role" {
-  value = aws_iam_role.worklytics_tenant
+  value = aws_iam_role.for_worklytics_tenant
 }
