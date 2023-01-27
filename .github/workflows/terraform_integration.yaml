@@ -1,0 +1,74 @@
+name: Terraform CI - Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'rc-*'
+
+
+jobs:
+  validate:
+    name: 'Terraform integration'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    env:
+      TERRAFORM_VERSION: 1.3.7
+      CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
+      GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
+      EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
+      EXAMPLE_TENANT_SA_ID: '104184075060961394622'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AWS_REGION: 'us-west-2'
+    steps:
+      - name: Get timestamp
+        id: timestamp
+        run: |
+          echo "timestamp=$(date  +%Y%m%d'T'%H%M%S)" >> $GITHUB_ENV
+
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: 'setup Terraform'
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - id: 'auth-gcp'
+        name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
+          service_account: ${{ env.CI_SA_EMAIL }}
+
+      # see : https://github.com/aws-actions/configure-aws-credentials
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::626567183302:role/gh_action_ci_agent
+          role-session-name: github_ci
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 'Terraform - integration test examples/basic apply'
+        id: terraform_apply
+        working-directory: examples/basic
+        run: |
+          terraform init
+          terraform apply -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
+          echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
+          echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
+
+      - name: 'Terraform - integration test examples/basic s3 write'
+        run: |
+          ./test/rsync.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} ${{ steps.terraform_apply.outputs.worklytics_export_bucket_id }} ${{ steps.terraform_apply.outputs.worklytics_tenant_aws_role_arn }}
+
+      - name: 'Terraform - integration test examples/basic terraform destroy'
+        if: always() # try to force this to ALWAYS happen, no matter if previous stuff failed
+        working-directory: examples/basic
+        run: |
+          aws s3 rm s3://${{ steps.terraform_apply.outputs.worklytics_export_bucket_id }} --recursive
+          terraform destroy -auto-approve -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"

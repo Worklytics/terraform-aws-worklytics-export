@@ -1,0 +1,15 @@
+# http://editorconfig.org/
+# GitHub respects this file to display their diffs / code reviews if in repo root
+# Seen in https://github.com/isaacs/github/issues/170 as a way to solve the 8 spaces tabs
+root = true
+
+[*]
+max_line_length = 100 # NOTE: exception to Google Style, which is generally 80
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# https://www.terraform.io/docs/configuration/style.html
+[*.tf]
+indent_style = space
+indent_size = 2
