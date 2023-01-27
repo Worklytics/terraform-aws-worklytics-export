@@ -8,10 +8,21 @@ using Terraform >= 1.0, please open an issue.
 
 ## Usage
 
+from Terraform registry: (pending release)
 ```hcl
 module "worklytics-export" {
   source  = "terraform-aws-worklytics-export"
   version = "~> 0.1.0"
+
+  # numeric ID of your Worklytics Tenant SA
+  worklytics_tenant_id = "123123123123"
+}
+```
+
+via GitHub:
+```hcl
+module "worklytics-export" {
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.1.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
