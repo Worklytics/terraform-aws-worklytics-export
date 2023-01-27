@@ -2,11 +2,10 @@
 
 This module creates infra to support exporting data from Worklytics to AWS.
 
-## Compatibility
-This module is meant for use with Terraform 1.0+. If you find incompabilies
-using Terraform >= 1.0, please open an issue.
+It is published in the Terraform Registry at:
+https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest
 
-## Usage
+## Usageß
 
 from Terraform registry: (pending release)
 ```hcl
@@ -31,10 +30,10 @@ module "worklytics-export" {
 
 ## Outputs
 
-### `worklytics_export_bucket`
+#### `worklytics_export_bucket`
 The Terraform resource created as the export bucket. See [`aws_s3_bucket`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) for details.
 
-### `worklytics_tenant_aws_role`
+#### `worklytics_tenant_aws_role`
 The IAM role that your Worklytics Tenant will assume before operating on your AWS infrastructure.
 
 Eg, Worklytics's infra will do the equivalent of [`aws sts assume-role`](https://docs.aws.amazon.com/cli/latest/reference/sts/assume-role.html)
@@ -43,6 +42,11 @@ on this role, authenticated by GCP as the GCP Service Account you identified wit
 See [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
 for general idea; this is the reverse direction of that (GCP --> AWS, rather than AWS --> GCP).
 
+
+## Compatibility
+
+This module is meant for use with Terraform 1.0+. If you find incompabilies
+using Terraform >= 1.0, please open an issue.
 
 ## Usage Tips
 
