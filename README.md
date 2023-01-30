@@ -2,9 +2,8 @@
 
 This module creates infra to support exporting data from Worklytics to AWS.
 
-## Compatibility
-This module is meant for use with Terraform 1.0+. If you find incompabilies
-using Terraform >= 1.0, please open an issue.
+It is published in the Terraform Registry at:
+https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest
 
 ## Usage
 
@@ -31,18 +30,31 @@ module "worklytics-export" {
 
 ## Outputs
 
-### `worklytics_export_bucket`
+#### `worklytics_export_bucket`
 The Terraform resource created as the export bucket. See [`aws_s3_bucket`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) for details.
 
-### `worklytics_tenant_aws_role`
+#### `worklytics_tenant_aws_role`
 The IAM role that your Worklytics Tenant will assume before operating on your AWS infrastructure.
 
 Eg, Worklytics's infra will do the equivalent of [`aws sts assume-role`](https://docs.aws.amazon.com/cli/latest/reference/sts/assume-role.html)
-on this role, authenticated by GCP as the GCP Service Account you identified with `worklytics_tenant_id`.
+on this role, authenticated by GCP as the GCP Service Account you identified with
+`worklytics_tenant_id`.
 
 See [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
 for general idea; this is the reverse direction of that (GCP --> AWS, rather than AWS --> GCP).
 
+This value is useful for a few scenarios:
+  - if you set a CMEK to encrypt the bucket rather than relying on AWS default, you may need to
+    grant encrypt / data key creation permissions to this role.
+  - if you additional IAM policies set on this account which would *deny* the permissions needed by
+    this role for S3/etc, you'll have to use this role's ARN to add exceptions to those policies
+    (in AWS IAM logic, explicit deny has precedence over explicit allow)
+
+
+## Compatibility
+
+This module is meant for use with Terraform 1.0+. If you find incompatibilities using Terraform >=
+1.0, please open an issue.
 
 ## Usage Tips
 
