@@ -8,23 +8,31 @@ terraform {
   }
 }
 
+locals {
+
+  # if `worklytics_tenant_id` is null, then empty role assumption policy has effect of allowing
+  # NO ONE to assume the role
+  role_assumption_statements = var.worklytics_tenant_id == null ? [] : {
+    Action = "sts:AssumeRoleWithWebIdentity"
+    Effect = "Allow"
+    Principal = {
+      Federated = "accounts.google.com"
+    }
+    Condition = {
+      StringEquals = {
+        "accounts.google.com:aud" = var.worklytics_tenant_id
+      }
+    }
+  }
+}
+
 resource "aws_iam_role" "for_worklytics_tenant" {
+
   name = "${var.resource_name_prefix}Tenant"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = {
-      Action = "sts:AssumeRoleWithWebIdentity"
-      Effect = "Allow"
-      Principal = {
-        Federated = "accounts.google.com"
-      }
-      Condition = {
-        StringEquals = {
-          "accounts.google.com:aud" = var.worklytics_tenant_id
-        }
-      }
-    }
+    Statement = local.role_assumption_statements
   })
 }
 
