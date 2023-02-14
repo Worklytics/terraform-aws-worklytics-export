@@ -82,10 +82,8 @@ resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
   ]
 }
 
-resource "local_file" "todo" {
-  filename = "TODO - configure export in worklytics.md"
-
-  content = <<EOT
+locals {
+  todo_content = <<EOT
 # Configure Export in Worklytics
 
   1. Go to [https://app.worklytics.co/](https://app.worklytics.co/), navigate to 'Export Data' and
@@ -94,5 +92,11 @@ resource "local_file" "todo" {
   3. Set `Role` to `${aws_iam_role.for_worklytics_tenant.arn}`
 
 EOT
-
 }
+
+resource "local_file" "todo" {
+  filename = "TODO - configure export in worklytics.md"
+
+  content = local.todo_content
+}
+
