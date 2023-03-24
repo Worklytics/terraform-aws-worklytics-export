@@ -1,7 +1,7 @@
 
 variable "resource_name_prefix" {
   type        = string
-  description = "Prefix to give to names of infra created by this module, where appicable."
+  description = "Prefix to give to names of infra created by this module, where applicable."
   default     = "worklytics-export-"
 }
 
