@@ -79,7 +79,8 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
 
           # to support rsync, has to be able to list and get objects
           "s3:GetObject",
-          "s3:ListBucket"
+          "s3:ListBucket",
+          "s3:ListObjectsV2",
         ]
         Resource = [
           "arn:aws:s3:::${aws_s3_bucket.worklytics_export.id}",
