@@ -69,6 +69,23 @@ If you wish to export Worklytics data to an existing bucket, use a Terraform imp
 terraform import module.worklytics_export.aws_s3_bucket.worklytics_export <bucket_name>
 ```
 
+### Customize Public Access Block
+By default, we set a restrictive public access block on the bucket.  If you need something more
+permissive, you can disable the default block by setting the variable `enable_aws_s3_bucket_public_access_block=false`
+in your `terraform.tfvars` file and then add your own public access block as follows:
+
+```tf
+resource "aws_s3_bucket_public_access_block" "worklytics_export" {
+  bucket = module.worklytics_export.worklytics_export_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+```
+
+
 ## Development
 
 This module is written and maintained by [Worklytics, Co.](https://worklytics.co/) and intended to

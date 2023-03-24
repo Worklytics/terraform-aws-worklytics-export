@@ -59,7 +59,7 @@ resource "aws_s3_bucket" "worklytics_export" {
 # you can use `aws_s3_bucket_public_access_block` to disable this, as these defaults are extreme.
 # if you do, we recommend setting something similar outside this module
 resource "aws_s3_bucket_public_access_block" "worklytics_export" {
-  count = var.aws_s3_bucket_public_access_block ? 1 : 0
+  count = var.enable_aws_s3_bucket_public_access_block ? 1 : 0
 
   bucket = aws_s3_bucket.worklytics_export.id
 
@@ -68,6 +68,7 @@ resource "aws_s3_bucket_public_access_block" "worklytics_export" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
 
 # TODO if key, need perm to "kms:GenerateDataKey" and "kms:Decrypt" ??
 # q - do we leave that to customer, or support it natively since pretty common case??

@@ -15,7 +15,7 @@ variable "worklytics_tenant_id" {
   }
 }
 
-variable "aws_s3_bucket_public_access_block" {
+variable "enable_aws_s3_bucket_public_access_block" {
   type        = bool
   description = "Whether to place restrictive `aws_s3_bucket_public_access_block` on S3 bucket. Set to `false` if you wish to configure something equivalent outside this module."
   default     = true
