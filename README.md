@@ -77,3 +77,20 @@ guide our customers in setting up their own infra to export data from Worklytics
 Our intent is that this will be [published as a Terraform module](https://developer.hashicorp.com/terraform/registry/modules/publish), so will follow [standard Terraform
 module structure](https://developer.hashicorp.com/terraform/language/modules/develop/structure).
 
+### BYO Example
+
+Within `examples/basic/`, create a `terraform.tfvars` file with the following content, customizing
+AWS account id and role name as needed.
+
+```hcl
+worklytics_tenant_id = null # "123456712345671234567"
+aws_account_id       = "626567183302"
+aws_role_name        = "YourAdminRole"
+```
+
+Then test the example:
+
+```shell
+terraform init
+terraform apply
+```
