@@ -4,7 +4,7 @@ on:
   [push]
 
 jobs:
-  lint:
+  tf_lint:
     name: 'Terraform lint'
     runs-on: ubuntu-latest
     permissions:

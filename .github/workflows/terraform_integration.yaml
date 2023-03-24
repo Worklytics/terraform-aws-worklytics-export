@@ -9,7 +9,7 @@ on:
 
 
 jobs:
-  validate:
+  tf_integration:
     name: 'Terraform integration'
     runs-on: ubuntu-latest
     permissions:
