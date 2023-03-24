@@ -1,5 +1,8 @@
 # Worklytics Export to AWS Terraform Module
 
+[![Latest Release](https://img.shields.io/github/v/release/Worklytics/terraform-aws-worklytics-export)](https://github.com/Worklytics/terraform-aws-worklytics-export/releases/latest)
+![tests](https://img.shields.io/github/actions/workflow/status/Worklytics/terraform-aws-worklytics-export/terraform_integration.yaml?label=tests)
+
 This module creates infra to support exporting data from Worklytics to AWS.
 
 It is published in the Terraform Registry at:
