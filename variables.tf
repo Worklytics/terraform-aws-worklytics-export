@@ -11,6 +11,6 @@ variable "worklytics_tenant_id" {
 
   validation {
     condition     = var.worklytics_tenant_id == null || can(regex("^\\d{21}$", var.worklytics_tenant_id))
-    error_message = "`worklytics_tenant_id` must be a 21-digit numeric value."
+    error_message = "`worklytics_tenant_id` must be a 21-digit numeric value. (or `null`, for pre-production use case where you don't want external entity to be allowed to assume the role)."
   }
 }

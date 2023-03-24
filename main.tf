@@ -8,12 +8,28 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role" "for_worklytics_tenant" {
+
   name = "${var.resource_name_prefix}Tenant"
 
-  assume_role_policy = jsonencode({
+  # if `worklytics_tenant_id` is null, then use a placeholder `assume_role_policy` that allows,
+  # to support pre-production use case (where infra is created for review, but inaccessible)
+  assume_role_policy = var.worklytics_tenant_id == null ? jsonencode({
     Version = "2012-10-17"
     Statement = {
+      Sid    = "AllowOwnAccountToAssumeRole"
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        "AWS" = data.aws_caller_identity.current.account_id
+      }
+    }
+    }) : jsonencode({
+    Version = "2012-10-17"
+    Statement = {
+      Sid    = "AllowWorklyticsTenantToAssumeRole"
       Action = "sts:AssumeRoleWithWebIdentity"
       Effect = "Allow"
       Principal = {
