@@ -85,6 +85,29 @@ resource "aws_s3_bucket_public_access_block" "worklytics_export" {
 }
 ```
 
+### Add a Max Retention Policy
+
+It's good practice to have a max retention policy on your bucket, even if it's really long. If you
+have a data pipeline regularly moving data from this bucket into your data warehouse, a value of 30
+or 60 days can likely lower your storage costs and reduce risk of having data in more places than it
+needs to be.
+
+```tf
+resource "aws_s3_bucket_lifecycle_configuration" "worklytics_export" {
+  bucket = module.worklytics_export.worklytics_export_bucket.id
+
+  rule {
+    id      = "max_retention_5_years"
+    enabled = true
+
+    expiration {
+      days = 5*365 # 5 years
+    }
+  }
+}
+
+```
+
 
 ## Development
 
