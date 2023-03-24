@@ -23,6 +23,7 @@ jobs:
       EXAMPLE_TENANT_SA_ID: '104184075060961394622'
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       AWS_REGION: 'us-west-2'
+      AWS_ACCOUNT_ID: '626567183302'
     steps:
       - name: Get timestamp
         id: timestamp
@@ -58,7 +59,10 @@ jobs:
         working-directory: examples/basic
         run: |
           terraform init
-          terraform apply -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" -auto-approve
+          terraform apply -auto-approve \
+            -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
+            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" \
+            -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
           echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
 
@@ -71,4 +75,7 @@ jobs:
         working-directory: examples/basic
         run: |
           aws s3 rm s3://${{ steps.terraform_apply.outputs.worklytics_export_bucket_id }} --recursive
-          terraform destroy -auto-approve -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
+          terraform destroy -auto-approve \
+            -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
+            -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
+            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}"
