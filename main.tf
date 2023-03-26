@@ -17,21 +17,21 @@ resource "aws_iam_role" "for_worklytics_tenant" {
   # if `worklytics_tenant_id` is null, then use a placeholder `assume_role_policy` that allows,
   # to support pre-production use case (where infra is created for review, but inaccessible)
   assume_role_policy = var.worklytics_tenant_id == null ? jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = {
-      Sid    = "AllowOwnAccountToAssumeRole"
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
+      Sid       = "AllowOwnAccountToAssumeRole"
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
       Principal = {
         "AWS" = data.aws_caller_identity.current.account_id
       }
     }
-    }) : jsonencode({
-    Version = "2012-10-17"
+  }) : jsonencode({
+    Version   = "2012-10-17"
     Statement = {
-      Sid    = "AllowWorklyticsTenantToAssumeRole"
-      Action = "sts:AssumeRoleWithWebIdentity"
-      Effect = "Allow"
+      Sid       = "AllowWorklyticsTenantToAssumeRole"
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Effect    = "Allow"
       Principal = {
         Federated = "accounts.google.com"
       }
@@ -42,18 +42,22 @@ resource "aws_iam_role" "for_worklytics_tenant" {
       }
     }
   })
+
+  tags = merge(
+    var.tags_for_all,
+    var.iam_role_tags,
+  )
 }
+
 
 resource "aws_s3_bucket" "worklytics_export" {
 
   bucket_prefix = replace(lower(var.resource_name_prefix), "_", "-")
 
-  lifecycle {
-    ignore_changes = [
-      # don't conflict with tags customers might wish to add themselves
-      tags,
-    ]
-  }
+  tags = merge(
+    var.tags_for_all,
+    var.s3_bucket_tags,
+  )
 }
 
 # you can use `aws_s3_bucket_public_access_block` to disable this, as these defaults are extreme.
@@ -98,6 +102,11 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
       },
     ]
   })
+
+  tags = merge(
+    var.tags_for_all,
+    var.iam_policy_tags,
+  )
 }
 
 resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {

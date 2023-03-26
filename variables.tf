@@ -20,3 +20,26 @@ variable "enable_aws_s3_bucket_public_access_block" {
   default     = true
 }
 
+variable "tags_for_all" {
+  type        = map(string)
+  description = "Tags to apply to all resources created by this module. If conflict with per-resource tags, resource values will take precedence."
+  default     = {}
+}
+
+variable "s3_bucket_tags" {
+  type        = map(string)
+  description = "Tags to apply to the S3 bucket"
+  default     = {}
+}
+
+variable "iam_role_tags" {
+  type        = map(string)
+  description = "Tags to apply to the IAM role"
+  default     = {}
+}
+
+variable "iam_policy_tags" {
+  type        = map(string)
+  description = "Tags to apply to the IAM policy"
+  default     = {}
+}
