@@ -1,12 +1,11 @@
 # Worklytics Export to AWS Terraform Module
 
 [![Latest Release](https://img.shields.io/github/v/release/Worklytics/terraform-aws-worklytics-export)](https://github.com/Worklytics/terraform-aws-worklytics-export/releases/latest)
-![tests](https://img.shields.io/github/actions/workflow/status/Worklytics/terraform-aws-worklytics-export/terraform_integration.yaml?label=tests)
+[![tests](https://img.shields.io/github/actions/workflow/status/Worklytics/terraform-aws-worklytics-export/terraform_integration.yaml?label=tests)](https://github.com/Worklytics/terraform-aws-worklytics-export/actions?query=branch%3Amain)
 
 This module creates infra to support exporting data from Worklytics to AWS.
 
-It is published in the Terraform Registry at:
-https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest
+It is published in the [Terraform Registry](https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest).
 
 ## Usage
 
@@ -14,7 +13,7 @@ from Terraform registry:
 ```hcl
 module "worklytics-export" {
   source  = "terraform-aws-worklytics-export"
-  version = "~> 0.2.0"
+  version = "~> 0.3.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -24,7 +23,7 @@ module "worklytics-export" {
 via GitHub:
 ```hcl
 module "worklytics-export" {
-  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.2.0"
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.3.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
