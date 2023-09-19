@@ -13,7 +13,7 @@ from Terraform registry:
 ```hcl
 module "worklytics-export" {
   source  = "terraform-aws-worklytics-export"
-  version = "~> 0.3.0"
+  version = "~> 0.4.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -23,7 +23,7 @@ module "worklytics-export" {
 via GitHub:
 ```hcl
 module "worklytics-export" {
-  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.3.0"
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.4.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
