@@ -26,3 +26,14 @@ variable "worklytics_host" {
   default     = "app.worklytics.co"
 }
 
+variable "todos_as_outputs" {
+  type        = bool
+  description = "whether to render TODOs as outputs (former useful if you're using Terraform Cloud/Enterprise, or somewhere else where the filesystem is not readily accessible to you)"
+  default     = false
+}
+
+variable "todos_as_local_files" {
+  type        = bool
+  description = "whether to render TODOs as flat files"
+  default     = true
+}

@@ -137,8 +137,15 @@ EOT
 }
 
 resource "local_file" "todo" {
+  count = var.todos_as_local_files ? 1 : 0
+
   filename = "TODO - configure export in worklytics.md"
 
   content = local.todo_content
 }
 
+# moved in 0.4.0
+moved {
+  from = local_file.todo
+  to   = local_file[0].todo
+}
