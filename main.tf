@@ -114,14 +114,14 @@ locals {
 
 1. Ensure you're authenticated with Worklytics. Either sign-in at [https://app.worklytics.co](https://app.worklytics.co)
   with your organization's SSO provider *or* request OTP link from your Worklytics support team.
-2. Visit `https://app.worklytics.co/analytics/data-export/connect?bucket=${aws_s3_bucket
+2. Visit `https://${var.worklytics_host}/analytics/data-export/connect?bucket=${aws_s3_bucket
 .worklytics_export.bucket}&roleArn=${aws_iam_role.for_worklytics_tenant.arn}`
 3. Review any additional settings (such as the Dataset type you'd like to export) and adjust
   values as you see fit, then click "Create Data Export".
 
 Alternatively, you may follow the manual instructions below:
 
-1. Visit [https://app.worklytics.co/analytics/data-export](https://app.worklytics.co/analytics/data-export)
+1. Visit [https://${var.worklytics_host}/analytics/data-export](https://app.worklytics.co/analytics/data-export)
   (or login into Worklytics, and navigate to Manage --> Export Data).
 2. Click on the 'Create New Data Export' button in the upper right.
 3. Fill in the form with the following values:

@@ -20,3 +20,9 @@ variable "enable_aws_s3_bucket_public_access_block" {
   default     = true
 }
 
+variable "worklytics_host" {
+  type        = string
+  description = "host of worklytics instance where tenant resides. (e.g. app.worklytics.co for prod; but may differ for dev/staging)"
+  default     = "app.worklytics.co"
+}
+
