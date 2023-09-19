@@ -147,5 +147,5 @@ resource "local_file" "todo" {
 # moved in 0.4.0
 moved {
   from = local_file.todo
-  to   = local_file[0].todo
+  to   = local_file.todo[0]
 }
