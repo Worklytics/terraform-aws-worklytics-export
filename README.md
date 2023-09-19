@@ -7,6 +7,9 @@ This module creates infra to support exporting data from Worklytics to AWS.
 
 It is published in the [Terraform Registry](https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest).
 
+If it does not meet your needs, feel free to directly copy the `main.tf` file into your own Terraform
+configuration and adapt it to your requirements.
+
 ## Usage
 
 from Terraform registry:
