@@ -7,13 +7,16 @@ This module creates infra to support exporting data from Worklytics to AWS.
 
 It is published in the [Terraform Registry](https://registry.terraform.io/modules/Worklytics/worklytics-export/aws/latest).
 
+If it does not meet your needs, feel free to directly copy the `main.tf` file into your own Terraform
+configuration and adapt it to your requirements.
+
 ## Usage
 
 from Terraform registry:
 ```hcl
 module "worklytics-export" {
   source  = "terraform-aws-worklytics-export"
-  version = "~> 0.3.0"
+  version = "~> 0.4.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -23,7 +26,7 @@ module "worklytics-export" {
 via GitHub:
 ```hcl
 module "worklytics-export" {
-  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.3.0"
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.4.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -121,4 +124,4 @@ and [style conventions](https://developer.hashicorp.com/terraform/language/synta
 
 See [examples/basic/](examples/basic/) for a simple example of how to use this module.
 
-
+(c) 2023 Worklytics, Co
