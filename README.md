@@ -124,4 +124,4 @@ and [style conventions](https://developer.hashicorp.com/terraform/language/synta
 
 See [examples/basic/](examples/basic/) for a simple example of how to use this module.
 
-
+(c) 2023 Worklytics, Co
