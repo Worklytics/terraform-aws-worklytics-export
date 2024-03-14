@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform_version: [ '1.5.7', '1.6.6', '1.7.5'] # in theory, we go down to 1.0, but I think that's overkill for lint
+        terraform_version: [ '~1.5.0', '~1.6.0', '~1.7.0', 'latest'] # in theory, we go down to 1.0, but I think that's overkill for lint
     permissions:
       contents: 'read'
       id-token: 'write'
