@@ -60,10 +60,11 @@ jobs:
         id: terraform_apply
         working-directory: examples/basic
         run: |
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | openssl dgst -sha1 | openssl base64)
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
-            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ matrix.terraform_version }}_${{ env.timestamp}}" \
+            -var="resource_name_prefix=ci_tf_aws_${RESOURCE_PREFIX}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
           echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
