@@ -60,7 +60,7 @@ jobs:
         id: terraform_apply
         working-directory: examples/basic
         run: |
-          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | openssl dgst -sha1 | openssl base64)
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
