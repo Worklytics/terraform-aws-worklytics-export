@@ -10,13 +10,15 @@ on:
 
 jobs:
   tf_integration:
-    name: 'Terraform integration'
+    name: 'Terraform integration (on tf ${{ matrix.terraform_version }})'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: [ '1.4.7', '1.5.7', '1.6.6', '1.7.5' ] # haven't seen < 1.4 in the wild, so limit for sanity
     permissions:
       contents: 'read'
       id-token: 'write'
     env:
-      TERRAFORM_VERSION: 1.3.7
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
       EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
@@ -36,7 +38,7 @@ jobs:
       - name: 'setup Terraform'
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
 
       - id: 'auth-gcp'
