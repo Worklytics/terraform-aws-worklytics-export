@@ -15,10 +15,10 @@ jobs:
       id-token: 'write'
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'setup Terraform'
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ matrix.terraform_version }}
 

@@ -33,24 +33,24 @@ jobs:
           echo "timestamp=$(date  +%Y%m%d'T'%H%M%S)" >> $GITHUB_ENV
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'setup Terraform'
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
 
       - id: 'auth-gcp'
         name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
       # see : https://github.com/aws-actions/configure-aws-credentials
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::626567183302:role/gh_action_ci_agent
           role-session-name: github_ci
