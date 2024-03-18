@@ -5,21 +5,23 @@ on:
 
 jobs:
   tf_validate:
-    name: 'Terraform validate'
+    name: 'Terraform validate (on tf ${{ matrix.terraform_version }})'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: ['~1.1.0', '~1.2.0', '~1.3.0', '~1.4.0', '~1.5.0', '~1.6.0', '~1.7.0', 'latest']
     permissions:
       contents: 'read'
       id-token: 'write'
-    env:
-      TERRAFORM_VERSION: 1.3.7
+
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'setup Terraform'
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ matrix.terraform_version }}
 
       - name: 'Terraform - validate examples/basic'
         working-directory: examples/basic

@@ -61,8 +61,8 @@ This value is useful for a few scenarios:
 
 ## Compatibility
 
-This module is meant for use with Terraform 1.0+. If you find incompatibilities using Terraform >=
-1.0, please open an issue.
+This module is meant for use with Terraform 1.1+. If you find incompatibilities using Terraform >=
+1.1, please open an issue.
 
 ## Usage Tips
 

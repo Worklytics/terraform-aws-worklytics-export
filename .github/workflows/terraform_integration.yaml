@@ -10,13 +10,15 @@ on:
 
 jobs:
   tf_integration:
-    name: 'Terraform integration'
+    name: 'Terraform integration (on tf ${{ matrix.terraform_version }})'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: [ '~1.4.0', '~1.5.0', '~1.6.0', '~1.7.0', 'latest' ] # haven't seen < 1.4 in the wild, so limit for sanity
     permissions:
       contents: 'read'
       id-token: 'write'
     env:
-      TERRAFORM_VERSION: 1.3.7
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
       EXAMPLE_TENANT_SA_EMAIL: tf-aws-export-tenant@worklytics-ci.iam.gserviceaccount.com
@@ -31,24 +33,24 @@ jobs:
           echo "timestamp=$(date  +%Y%m%d'T'%H%M%S)" >> $GITHUB_ENV
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'setup Terraform'
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
 
       - id: 'auth-gcp'
         name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
       # see : https://github.com/aws-actions/configure-aws-credentials
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::626567183302:role/gh_action_ci_agent
           role-session-name: github_ci
@@ -58,10 +60,11 @@ jobs:
         id: terraform_apply
         working-directory: examples/basic
         run: |
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
-            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}" \
+            -var="resource_name_prefix=ci_tf_aws_${RESOURCE_PREFIX}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
           echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
