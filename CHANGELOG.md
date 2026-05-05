@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] - 2026-05-05
 
 ### Changed
-- Updated minimum required AWS provider version from `>= 3.0` to `>= 5.0`. This drops
-  implicit compatibility with provider v3/v4 (both of which had significant breaking changes
-  around S3 resources). All module resources are fully compatible with AWS provider v5.x and v6.x.
+- AWS provider floor retained at `>= 3.0` (unchanged). The module's resource usage
+  (`aws_s3_bucket_public_access_block`, `aws_iam_*`, etc.) only requires v2.42+, so
+  the original floor remains accurate.
 - Updated GitHub Actions workflow action versions:
-  - `actions/checkout` v3 → v4
+  - `actions/checkout` v3 → v6
   - `hashicorp/setup-terraform` v2 → v3
   - `google-github-actions/auth` v1 → v2
   - `aws-actions/configure-aws-credentials` v1 → v4
-- Updated CI Terraform version from 1.3.7 to 1.10.5.
+- Updated CI Terraform version to 1.15.1 for lint/validate workflows.
+- Expanded integration test matrix to cover all Terraform 1.1–1.15 minor versions
+  × all AWS provider major series 3.x–6.x (60 combinations). Note: Terraform 1.0 is
+  excluded because the `moved` block used in this module requires `>= 1.1`.
 
 ## [0.4.0] - 2024-03-08
 
