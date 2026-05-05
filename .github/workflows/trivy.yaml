@@ -1,0 +1,50 @@
+name: trivy
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Run weekly on Monday at 08:00 UTC so new CVE/misconfiguration rules are caught proactively.
+    - cron: '0 8 * * 1'
+
+jobs:
+  trivy_scan:
+    name: 'Trivy IaC scan'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required to upload SARIF results to GitHub Security tab.
+      security-events: write
+      # Required for private repos; harmless on public.
+      actions: read
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Run Trivy (SARIF output)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: config       # IaC / misconfiguration scanner
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          exit-code: '0'          # don't fail the step; let the upload + summary decide
+          trivyignores: .trivyignore   # optional: add this file to the repo to suppress false positives
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-iac
+
+      - name: Run Trivy (table output for log visibility)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: config
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'          # fail the job on CRITICAL or HIGH findings
