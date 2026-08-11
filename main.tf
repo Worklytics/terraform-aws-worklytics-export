@@ -56,8 +56,8 @@ resource "aws_s3_bucket" "worklytics_export" {
   }
 }
 
-# you can use `aws_s3_bucket_public_access_block` to disable this, as these defaults are extreme.
-# if you do, we recommend setting something similar outside this module
+# set `enable_aws_s3_bucket_public_access_block = false` to disable this; if you do,
+# we recommend configuring an equivalent block outside this module
 resource "aws_s3_bucket_public_access_block" "worklytics_export" {
   count = var.enable_aws_s3_bucket_public_access_block ? 1 : 0
 

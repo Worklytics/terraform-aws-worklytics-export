@@ -7,17 +7,39 @@ on:
       - main
       - 'rc-*'
 
+# Only one integration run per ref; cancel superseded runs so applies don't pile up
+# against the shared CI AWS account.
+concurrency:
+  group: tf-integration-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tf_integration:
-    name: 'Terraform integration (on tf ${{ matrix.terraform_version }})'
+    # Branch protection requires the exact check name "Terraform integration (on tf latest)"
+    # for the newest TF + AWS combo; other matrix cells keep aws in the name for uniqueness.
+    name: ${{ (matrix.terraform_version == 'latest' && matrix.aws_provider_version == '~> 6.0') && 'Terraform integration (on tf latest)' || format('Terraform integration (tf={0}, aws={1})', matrix.terraform_version, matrix.aws_provider_version) }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        terraform_version: [ '~1.4.0', '~1.5.0', '~1.6.0', '~1.7.0', 'latest' ] # haven't seen < 1.4 in the wild, so limit for sanity
     permissions:
       contents: 'read'
       id-token: 'write'
+    strategy:
+      fail-fast: false
+      # Limit parallel applies/destroys against the shared CI account.
+      max-parallel: 2
+      matrix:
+        terraform_version:
+          # oldest supported, a couple intermediates, and latest
+          # (1.0 excluded: the `moved` block requires Terraform >= 1.1)
+          - 1.1.9
+          - 1.5.7
+          - 1.10.5
+          - latest
+        aws_provider_version:
+          # ends of the supported major range; middle majors assumed OK if these pass
+          - '~> 3.0'
+          # - '~> 4.0'
+          # - '~> 5.0'
+          - '~> 6.0'
     env:
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
@@ -33,7 +55,7 @@ jobs:
           echo "timestamp=$(date  +%Y%m%d'T'%H%M%S)" >> $GITHUB_ENV
 
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 'setup Terraform'
         uses: hashicorp/setup-terraform@v3
@@ -56,16 +78,36 @@ jobs:
           role-session-name: github_ci
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: 'Pin AWS provider version for test matrix'
+        # Writes a standalone required_providers declaration so terraform init
+        # resolves exactly the provider series under test. GitHub Actions
+        # expands ${{ }} before the shell runs, so the HCL literal is safe.
+        # The intersection with the module's ">= 3.0" floor is also satisfied.
+        working-directory: examples/basic
+        run: |
+          cat > aws_provider_version_test.tf << 'TFEOF'
+          terraform {
+            required_providers {
+              aws = {
+                source  = "hashicorp/aws"
+                version = "${{ matrix.aws_provider_version }}"
+              }
+            }
+          }
+          TFEOF
+
       - name: 'Terraform - integration test examples/basic apply'
         id: terraform_apply
         working-directory: examples/basic
         run: |
-          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ matrix.aws_provider_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          RESOURCE_NAME_PREFIX="ci_tf_aws_${RESOURCE_PREFIX}"
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
-            -var="resource_name_prefix=ci_tf_aws_${RESOURCE_PREFIX}" \
+            -var="resource_name_prefix=${RESOURCE_NAME_PREFIX}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
+          echo "resource_name_prefix=${RESOURCE_NAME_PREFIX}" >> $GITHUB_OUTPUT
           echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
 
@@ -81,4 +123,4 @@ jobs:
           terraform destroy -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
-            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}"
+            -var="resource_name_prefix=${{ steps.terraform_apply.outputs.resource_name_prefix }}"

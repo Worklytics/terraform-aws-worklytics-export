@@ -1,0 +1,5 @@
+# Encryption is intentionally left to consumers so they can compose with their
+# own aws_s3_bucket_server_side_encryption_configuration / KMS key setup.
+# See README "Customize" guidance and the KMS TODO in main.tf.
+AVD-AWS-0088
+AVD-AWS-0132
