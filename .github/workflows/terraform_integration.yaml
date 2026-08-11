@@ -15,7 +15,9 @@ concurrency:
 
 jobs:
   tf_integration:
-    name: 'Terraform integration (tf=${{ matrix.terraform_version }}, aws=${{ matrix.aws_provider_version }})'
+    # Branch protection requires the exact check name "Terraform integration (on tf latest)"
+    # for the newest TF + AWS combo; other matrix cells keep aws in the name for uniqueness.
+    name: ${{ (matrix.terraform_version == 'latest' && matrix.aws_provider_version == '~> 6.0') && 'Terraform integration (on tf latest)' || format('Terraform integration (tf={0}, aws={1})', matrix.terraform_version, matrix.aws_provider_version) }}
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -26,12 +28,12 @@ jobs:
       max-parallel: 2
       matrix:
         terraform_version:
-          # oldest supported, a couple intermediates, and latest pin
+          # oldest supported, a couple intermediates, and latest
           # (1.0 excluded: the `moved` block requires Terraform >= 1.1)
           - 1.1.9
           - 1.5.7
           - 1.10.5
-          - 1.15.1
+          - latest
         aws_provider_version:
           # ends of the supported major range; middle majors assumed OK if these pass
           - '~> 3.0'
