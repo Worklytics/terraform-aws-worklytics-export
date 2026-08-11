@@ -84,7 +84,7 @@ jobs:
         # Writes a standalone required_providers declaration so terraform init
         # resolves exactly the provider series under test. GitHub Actions
         # expands ${{ }} before the shell runs, so the HCL literal is safe.
-        # The intersection with the module's ">= 5.0" floor is also satisfied.
+        # The intersection with the module's ">= 3.0" floor is also satisfied.
         working-directory: examples/basic
         run: |
           cat > aws_provider_version_test.tf << 'TFEOF'
