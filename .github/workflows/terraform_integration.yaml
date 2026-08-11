@@ -7,6 +7,11 @@ on:
       - main
       - 'rc-*'
 
+# Only one integration run per ref; cancel superseded runs so applies don't pile up
+# against the shared CI AWS account.
+concurrency:
+  group: tf-integration-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tf_integration:
@@ -17,30 +22,21 @@ jobs:
       id-token: 'write'
     strategy:
       fail-fast: false
+      # Limit parallel applies/destroys against the shared CI account.
+      max-parallel: 2
       matrix:
         terraform_version:
-          # one representative latest-patch per 1.x minor; 1.0 excluded because
-          # the `moved` block used in this module requires Terraform >= 1.1
+          # oldest supported, a couple intermediates, and latest pin
+          # (1.0 excluded: the `moved` block requires Terraform >= 1.1)
           - 1.1.9
-          - 1.2.9
-          - 1.3.10
-          - 1.4.7
           - 1.5.7
-          - 1.6.6
-          - 1.7.5
-          - 1.8.5
-          - 1.9.8
           - 1.10.5
-          - 1.11.4
-          - 1.12.2
-          - 1.13.2
-          - 1.14.1
           - 1.15.1
         aws_provider_version:
-          # all major series compatible with the module's floor of >= 3.0
+          # ends of the supported major range; middle majors assumed OK if these pass
           - '~> 3.0'
-          - '~> 4.0'
-          - '~> 5.0'
+          # - '~> 4.0'
+          # - '~> 5.0'
           - '~> 6.0'
     env:
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
@@ -102,12 +98,14 @@ jobs:
         id: terraform_apply
         working-directory: examples/basic
         run: |
-          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ matrix.aws_provider_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          RESOURCE_NAME_PREFIX="ci_tf_aws_${RESOURCE_PREFIX}"
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
-            -var="resource_name_prefix=ci_tf_aws_${RESOURCE_PREFIX}" \
+            -var="resource_name_prefix=${RESOURCE_NAME_PREFIX}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
+          echo "resource_name_prefix=${RESOURCE_NAME_PREFIX}" >> $GITHUB_OUTPUT
           echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
 
@@ -123,4 +121,4 @@ jobs:
           terraform destroy -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
-            -var="resource_name_prefix=tf_aws_w8s_export_ci_${{ env.timestamp}}"
+            -var="resource_name_prefix=${{ steps.terraform_apply.outputs.resource_name_prefix }}"

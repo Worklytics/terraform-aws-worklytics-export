@@ -16,10 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `hashicorp/setup-terraform` v2 → v3
   - `google-github-actions/auth` v1 → v2
   - `aws-actions/configure-aws-credentials` v1 → v4
-- Updated CI Terraform version to 1.15.1 for lint/validate workflows.
-- Expanded integration test matrix to cover all Terraform 1.1–1.15 minor versions
-  × all AWS provider major series 3.x–6.x (60 combinations). Note: Terraform 1.0 is
-  excluded because the `moved` block used in this module requires `>= 1.1`.
+- Slimmed CI Terraform version matrices:
+  - lint: oldest supported (`~1.1.0`) + `latest`
+  - validate / integration: oldest, a couple intermediates, and latest
+- Integration also matrices AWS provider majors `~> 3.0` and `~> 6.0`, with
+  workflow concurrency + `max-parallel` to limit contention on the shared CI account.
+  Terraform 1.0 is excluded because the `moved` block requires `>= 1.1`.
 
 ## [0.4.0] - 2024-03-08
 
