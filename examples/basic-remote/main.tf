@@ -7,7 +7,7 @@ terraform {
 }
 
 module "worklytics_export" {
-  source  = "terraform-aws-worklytics-export"
+  source  = "Worklytics/worklytics-export/aws"
   version = "~> 0.5.0"
 
   resource_name_prefix = var.resource_name_prefix
