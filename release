@@ -1,0 +1,38 @@
+#!/bin/bash
+
+GREEN='\e[0;32m'
+BLUE='\e[0;34m'
+NC='\e[0m' # No Color
+
+RELEASE=$1
+
+printf "Creating release ${GREEN}$RELEASE${NC}; this should be a semantic version number, e.g. 'v{MAJOR}.{MINOR}.{PATCH}'\n"
+
+
+# ensure repo is clean
+if [ -z "$(git status --porcelain)" ]; then
+  printf "${GREEN}Git repository is clean. No uncommitted changes detected.${NC}\n"
+else
+  printf "Uncommitted changes. Discard with ${BLUE}git reset --hard${NC}?\n"
+  read -p "Continue? [y/N] " -n 1 -r
+  DISCARD=${DISCARD:-N}
+
+    echo    # Move to a new line
+    case "$DISCARD" in
+      [nN])
+         git reset --hard
+        ;;
+      *)
+        printf "Chose not to reset; sort this out yourself.\n"
+        exit 1
+        ;;
+    esac
+fi
+
+
+git checkout main
+git pull origin main
+git tag $RELEASE
+git push origin $RELEASE
+
+printf "Pushing tag ${GREEN}$RELEASE${NC} to origin; GitHub actions workflow should generate release; if not, do it through UX\n"
