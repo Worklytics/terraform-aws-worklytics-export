@@ -69,6 +69,25 @@ resource "aws_s3_bucket_public_access_block" "worklytics_export" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_versioning" "worklytics_export" {
+  count = var.enable_aws_s3_bucket_versioning ? 1 : 0
+
+  bucket = aws_s3_bucket.worklytics_export.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# pass `aws_s3_access_log_bucket` to enable; otherwise configure logging outside this module
+resource "aws_s3_bucket_logging" "worklytics_export" {
+  count = var.aws_s3_access_log_bucket != null ? 1 : 0
+
+  bucket = aws_s3_bucket.worklytics_export.id
+
+  target_bucket = var.aws_s3_access_log_bucket
+  target_prefix = var.aws_s3_access_log_prefix
+}
 
 # TODO if key, need perm to "kms:GenerateDataKey" and "kms:Decrypt" ??
 # q - do we leave that to customer, or support it natively since pretty common case??

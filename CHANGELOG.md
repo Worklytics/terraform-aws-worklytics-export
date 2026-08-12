@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
+  the export bucket.
+- Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3
+  server access logging when a destination bucket is provided.
+
 ## [0.5.0] - 2026-05-05
 
 ### Changed

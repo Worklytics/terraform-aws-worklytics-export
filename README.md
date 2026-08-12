@@ -90,6 +90,31 @@ resource "aws_s3_bucket_public_access_block" "worklytics_export" {
 }
 ```
 
+### Enable Bucket Versioning
+Versioning is off by default. Enable it via:
+
+```tf
+module "worklytics-export" {
+  # ...
+  enable_aws_s3_bucket_versioning = true
+}
+```
+
+Or configure `aws_s3_bucket_versioning` yourself against `module.worklytics_export.worklytics_export_bucket.id`.
+
+### Enable Access Logging
+Pass an existing logging destination bucket (and optional prefix) to wire up server access logs:
+
+```tf
+module "worklytics-export" {
+  # ...
+  aws_s3_access_log_bucket = aws_s3_bucket.access_logs.id
+  aws_s3_access_log_prefix = "worklytics-export/"
+}
+```
+
+If omitted, you can still attach `aws_s3_bucket_logging` yourself using the module's bucket output.
+
 ### Add a Max Retention Policy
 
 It's good practice to have a max retention policy on your bucket, even if it's really long. If you
