@@ -61,8 +61,8 @@ This value is useful for a few scenarios:
 
 ## Compatibility
 
-This module is meant for use with Terraform 1.1+. If you find incompatibilities using Terraform >=
-1.1, please open an issue.
+This module is meant for use with Terraform 1.1+ and the HashiCorp AWS provider `>= 5.0`. If you
+find incompatibilities using those floors, please open an issue.
 
 ## Usage Tips
 
@@ -106,7 +106,7 @@ Or configure `aws_s3_bucket_versioning` yourself against `module.worklytics_expo
 Pass an existing logging destination bucket (and optional prefix) to wire up server access logs:
 
 ```tf
-module "worklytics-export" {
+module "worklytics_export" {
   # ...
   aws_s3_access_log_bucket = aws_s3_bucket.access_logs.id
   aws_s3_access_log_prefix = "worklytics-export/"

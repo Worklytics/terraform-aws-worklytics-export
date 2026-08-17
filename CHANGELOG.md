@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+> **Next release should be `1.0.0`.** Raising the AWS provider floor from `>= 3.0` to
+> `>= 5.0` is a breaking change for callers still on provider v3/v4.
+
 ### Added
 - Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
   the export bucket.
 - Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3
   server access logging when a destination bucket is provided.
+
+### Changed
+- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
+  standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Integration CI
+  now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
 
 ## [0.5.0] - 2026-05-05
 

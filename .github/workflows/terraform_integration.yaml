@@ -36,9 +36,7 @@ jobs:
           - latest
         aws_provider_version:
           # ends of the supported major range; middle majors assumed OK if these pass
-          - '~> 3.0'
-          # - '~> 4.0'
-          # - '~> 5.0'
+          - '~> 5.0'
           - '~> 6.0'
     env:
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
@@ -82,7 +80,7 @@ jobs:
         # Writes a standalone required_providers declaration so terraform init
         # resolves exactly the provider series under test. GitHub Actions
         # expands ${{ }} before the shell runs, so the HCL literal is safe.
-        # The intersection with the module's ">= 3.0" floor is also satisfied.
+        # The intersection with the module's ">= 5.0" floor is also satisfied.
         working-directory: examples/basic
         run: |
           cat > aws_provider_version_test.tf << 'TFEOF'
