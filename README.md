@@ -94,7 +94,7 @@ resource "aws_s3_bucket_public_access_block" "worklytics_export" {
 Versioning is off by default. Enable it via:
 
 ```tf
-module "worklytics-export" {
+module "worklytics_export" {
   # ...
   enable_aws_s3_bucket_versioning = true
 }
