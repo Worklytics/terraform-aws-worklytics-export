@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-> **Next release should be `1.0.0`.** Raising the AWS provider floor from `>= 3.0` to
-> `>= 5.0` is a breaking change for callers still on provider v3/v4.
+### Fixed
+- GitHub code scanning still reported S3 versioning (AVD-AWS-0090) and access logging
+  (AVD-AWS-0089) after v1.0.0. Those resources are opt-in and Trivy evaluates `count` from
+  defaults (`false` / `null`), so the bucket looks unconfigured. Ignore them the same way
+  encryption is ignored, and skip scanning `examples/` so the registry copy of the module
+  is not reported as a second finding.
+
+## [1.0.0] - 2026-08-17
+
+### Breaking Changes
+- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
+  standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Callers still
+  on provider v3/v4 will need to upgrade.
 
 ### Added
 - Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
@@ -17,9 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   server access logging when a destination bucket is provided.
 
 ### Changed
-- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
-  standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Integration CI
-  now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
+- Integration CI now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
 
 ## [0.5.0] - 2026-05-05
 
