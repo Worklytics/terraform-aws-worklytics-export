@@ -1,38 +1,130 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# REQUIRES: git
+# DESCRIPTION: Cut a vMAJOR.MINOR.PATCH tag from main. Promotes CHANGELOG.md
+# [Unreleased] into the version section, then pushes the tag so the GitHub
+# Actions workflow can create the GitHub Release.
 
-GREEN='\e[0;32m'
-BLUE='\e[0;34m'
-NC='\e[0m' # No Color
+set -euo pipefail
 
-RELEASE=$1
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RESET='\033[0m'
 
-printf "Creating release ${GREEN}$RELEASE${NC}; this should be a semantic version number, e.g. 'v{MAJOR}.{MINOR}.{PATCH}'\n"
+for cmd in git; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo -e "${RED}ERROR: ${cmd} is required but not installed.${RESET}"
+    exit 1
+  fi
+done
 
-
-# ensure repo is clean
-if [ -z "$(git status --porcelain)" ]; then
-  printf "${GREEN}Git repository is clean. No uncommitted changes detected.${NC}\n"
-else
-  printf "Uncommitted changes. Discard with ${BLUE}git reset --hard${NC}?\n"
-  read -p "Continue? [y/N] " -n 1 -r
-  DISCARD=${DISCARD:-N}
-
-    echo    # Move to a new line
-    case "$DISCARD" in
-      [nN])
-         git reset --hard
-        ;;
-      *)
-        printf "Chose not to reset; sort this out yourself.\n"
-        exit 1
-        ;;
-    esac
+RELEASE="${1:-}"
+if [[ ! "${RELEASE}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo -e "${RED}ERROR: pass a semantic version tag, e.g. ${BLUE}v1.2.3${RESET}"
+  echo "Usage: ./release v{MAJOR}.{MINOR}.{PATCH}"
+  exit 1
 fi
 
+VERSION="${RELEASE#v}"
+ROOT="$(git rev-parse --show-toplevel)"
+CHANGELOG="${ROOT}/CHANGELOG.md"
+
+echo -e "Creating release ${GREEN}${RELEASE}${RESET}"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo -e "${RED}Uncommitted changes in the working tree.${RESET}"
+  echo -e "Discard them with ${BLUE}git reset --hard${RESET}?"
+  read -r -p "Continue? [y/N] " reply
+  case "${reply}" in
+    [yY])
+      git reset --hard
+      ;;
+    *)
+      echo "Chose not to reset; sort this out yourself."
+      exit 1
+      ;;
+  esac
+fi
 
 git checkout main
 git pull origin main
-git tag $RELEASE
-git push origin $RELEASE
+git fetch origin --tags
 
-printf "Pushing tag ${GREEN}$RELEASE${NC} to origin; GitHub actions workflow should generate release; if not, do it through UX\n"
+if git show-ref --verify --quiet "refs/tags/${RELEASE}"; then
+  echo -e "${RED}ERROR: tag ${BLUE}${RELEASE}${RED} already exists.${RESET}"
+  exit 1
+fi
+
+promote_changelog() {
+  if [[ ! -f "${CHANGELOG}" ]]; then
+    return 0
+  fi
+  if grep -qE "^## \[${VERSION}\]" "${CHANGELOG}"; then
+    echo -e "CHANGELOG already has ${BLUE}[${VERSION}]${RESET}; leaving it as-is."
+    return 0
+  fi
+
+  local today tmp
+  today="$(date +%Y-%m-%d)"
+  tmp="$(mktemp)"
+  awk -v ver="${VERSION}" -v date="${today}" '
+    /^## \[Unreleased\]/ {
+      print "## [Unreleased]"
+      print ""
+      print "## [" ver "] - " date
+      print ""
+      in_unreleased = 1
+      skip_blanks = 1
+      next
+    }
+    in_unreleased && /^## \[/ { in_unreleased = 0 }
+    in_unreleased && /^>/ && /Next release should be/ { skip_quote = 1; next }
+    skip_quote && /^>/ { next }
+    skip_quote { skip_quote = 0 }
+    in_unreleased && skip_blanks && $0 ~ /^[[:space:]]*$/ { next }
+    {
+      skip_blanks = 0
+      print
+    }
+  ' "${CHANGELOG}" > "${tmp}"
+  mv "${tmp}" "${CHANGELOG}"
+  echo -e "Promoted CHANGELOG ${BLUE}[Unreleased]${RESET} → ${GREEN}[${VERSION}] - ${today}${RESET}"
+}
+
+promote_changelog
+
+NOTES_SCRIPT="${ROOT}/scripts/generate-release-notes.sh"
+if [[ -f "${NOTES_SCRIPT}" ]]; then
+  echo
+  echo -e "${GREEN}Release notes preview:${RESET}"
+  echo "-----"
+  bash "${NOTES_SCRIPT}" "${RELEASE}" || true
+  echo "-----"
+  echo
+fi
+
+read -r -p "Tag ${RELEASE} and push to origin? [y/N] " reply
+case "${reply}" in
+  [yY]) ;;
+  *)
+    echo "Aborted; tag was not created."
+    if [[ -n "$(git status --porcelain -- "${CHANGELOG}" 2>/dev/null || true)" ]]; then
+      echo -e "CHANGELOG.md was updated in the working tree; discard with ${BLUE}git checkout -- CHANGELOG.md${RESET} if you want."
+    fi
+    exit 1
+    ;;
+esac
+
+if [[ -n "$(git status --porcelain -- "${CHANGELOG}")" ]]; then
+  git add "${CHANGELOG}"
+  git commit -m "Release ${RELEASE}"
+fi
+
+git tag "${RELEASE}"
+if [[ -n "$(git log origin/main..HEAD --oneline 2>/dev/null || true)" ]]; then
+  git push origin main
+fi
+git push origin "${RELEASE}"
+
+echo -e "Pushed tag ${GREEN}${RELEASE}${RESET}; GitHub Actions should create the release."
+echo -e "If it does not, create it with ${BLUE}gh release create ${RELEASE} --title ${RELEASE} --notes-file <(scripts/generate-release-notes.sh ${RELEASE})${RESET}"
