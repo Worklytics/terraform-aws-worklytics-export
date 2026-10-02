@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > `>= 5.0` is a breaking change for callers still on provider v3/v4.
 
 ### Added
+- Optional `bucket_name` input to use a fixed export bucket name instead of generating one from
+  `resource_name_prefix`. Required together with `terraform import` when adopting an existing
+  bucket.
 - Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
   the export bucket.
 - Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3

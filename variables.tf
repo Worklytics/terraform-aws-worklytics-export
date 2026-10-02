@@ -1,7 +1,18 @@
 variable "resource_name_prefix" {
   type        = string
-  description = "Prefix to give to names of infra created by this module, where applicable."
+  description = "Prefix to give to names of infra created by this module, where applicable. When `bucket_name` is unset, also used to generate a unique S3 bucket name via `bucket_prefix`."
   default     = "worklytics-export-"
+}
+
+variable "bucket_name" {
+  type        = string
+  description = "Fixed name for the export S3 bucket. When set, the module uses this exact bucket name instead of generating one from `resource_name_prefix`. Required when adopting an existing bucket (together with `terraform import`)."
+  default     = null
+
+  validation {
+    condition     = var.bucket_name == null || can(regex("^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$", var.bucket_name))
+    error_message = "`bucket_name` must be a valid S3 bucket name (3-63 lowercase characters, numbers, hyphens, or periods; must start and end with a letter or number) when set."
+  }
 }
 
 variable "worklytics_tenant_id" {

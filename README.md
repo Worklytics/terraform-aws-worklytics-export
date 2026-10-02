@@ -66,13 +66,40 @@ find incompatibilities using those floors, please open an issue.
 
 ## Usage Tips
 
+### Custom or Existing Bucket Name
+
+By default, the module generates a unique bucket name from `resource_name_prefix` (AWS appends a
+random suffix to `bucket_prefix`). To choose the exact bucket name yourself, set `bucket_name`:
+
+```tf
+module "worklytics_export" {
+  # ...
+  bucket_name = "my-company-worklytics-export"
+}
+```
+
 ### Existing Bucket
 
-If you wish to export Worklytics data to an existing bucket, use a Terraform import as follows:
+To export Worklytics data to a bucket that already exists in your AWS account, you must **both**
+set `bucket_name` to that bucket's name **and** import it into Terraform state. Import alone is not
+sufficient: without `bucket_name`, the module will plan creation of a new bucket with a generated
+name, which will not match your existing bucket.
+
+```tf
+module "worklytics_export" {
+  # ...
+  bucket_name = "my-existing-export-bucket"
+}
+```
 
 ```bash
-terraform import module.worklytics_export.aws_s3_bucket.worklytics_export <bucket_name>
+terraform import module.worklytics_export.aws_s3_bucket.worklytics_export my-existing-export-bucket
 ```
+
+After import, run `terraform plan` to confirm the module only manages settings you expect (public
+access block, versioning, access logging, etc.). You may disable individual bucket settings via
+module variables (for example, `enable_aws_s3_bucket_public_access_block = false`) if the bucket
+already has equivalent configuration managed elsewhere.
 
 ### Customize Public Access Block
 By default, we set a restrictive public access block on the bucket.  If you need something more
