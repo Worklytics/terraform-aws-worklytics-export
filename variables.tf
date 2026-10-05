@@ -10,7 +10,11 @@ variable "bucket_name" {
   default     = null
 
   validation {
-    condition     = var.bucket_name == null || can(regex("^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$", var.bucket_name))
+    condition = var.bucket_name == null || (
+      can(regex("^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$", var.bucket_name)) &&
+      !can(regex("\\.\\.", var.bucket_name)) &&
+      !can(cidrhost("${var.bucket_name}/32", 0))
+    )
     error_message = "`bucket_name` must be a valid S3 bucket name (3-63 lowercase characters, numbers, hyphens, or periods; must start and end with a letter or number) when set."
   }
 }
