@@ -46,7 +46,8 @@ resource "aws_iam_role" "for_worklytics_tenant" {
 
 resource "aws_s3_bucket" "worklytics_export" {
 
-  bucket_prefix = replace(lower(var.resource_name_prefix), "_", "-")
+  bucket        = var.bucket_name
+  bucket_prefix = var.bucket_name == null ? replace(lower(var.resource_name_prefix), "_", "-") : null
 
   lifecycle {
     ignore_changes = [

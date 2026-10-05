@@ -27,6 +27,7 @@ module "worklytics_export" {
   source = "../../"
 
   resource_name_prefix = var.resource_name_prefix
+  bucket_name          = var.bucket_name
   worklytics_tenant_id = var.worklytics_tenant_id
 }
 
