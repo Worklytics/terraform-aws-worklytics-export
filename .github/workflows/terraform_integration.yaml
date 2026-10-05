@@ -100,21 +100,13 @@ jobs:
         run: |
           RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ matrix.aws_provider_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
           RESOURCE_NAME_PREFIX="ci_tf_aws_${RESOURCE_PREFIX}"
-          BUCKET_NAME="ci-tf-aws-fixed-${RESOURCE_PREFIX}"
           terraform init
           terraform apply -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
             -var="resource_name_prefix=${RESOURCE_NAME_PREFIX}" \
-            -var="bucket_name=${BUCKET_NAME}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}"
-          WORKLYTICS_EXPORT_BUCKET_ID=$(terraform output -raw worklytics_export_bucket_id)
-          if [ "${WORKLYTICS_EXPORT_BUCKET_ID}" != "${BUCKET_NAME}" ]; then
-            echo "Expected bucket_name ${BUCKET_NAME}, got ${WORKLYTICS_EXPORT_BUCKET_ID}"
-            exit 1
-          fi
           echo "resource_name_prefix=${RESOURCE_NAME_PREFIX}" >> $GITHUB_OUTPUT
-          echo "bucket_name=${BUCKET_NAME}" >> $GITHUB_OUTPUT
-          echo "worklytics_export_bucket_id=${WORKLYTICS_EXPORT_BUCKET_ID}" >> $GITHUB_OUTPUT
+          echo "worklytics_export_bucket_id=$(terraform output -raw worklytics_export_bucket_id)" >> $GITHUB_OUTPUT
           echo "worklytics_tenant_aws_role_arn=$(terraform output -raw worklytics_tenant_aws_role_arn)" >> $GITHUB_OUTPUT
 
       - name: 'Terraform - integration test examples/basic s3 write'
@@ -129,5 +121,4 @@ jobs:
           terraform destroy -auto-approve \
             -var="aws_account_id=${{ env.AWS_ACCOUNT_ID }}" \
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
-            -var="resource_name_prefix=${{ steps.terraform_apply.outputs.resource_name_prefix }}" \
-            -var="bucket_name=${{ steps.terraform_apply.outputs.bucket_name }}"
+            -var="resource_name_prefix=${{ steps.terraform_apply.outputs.resource_name_prefix }}"
