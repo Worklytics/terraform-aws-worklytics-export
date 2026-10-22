@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-22
+
 ### Breaking Changes
-- Minimum required Terraform version raised to `>= 1.9.0`.
+- Minimum required Terraform version raised to `>= 1.9.0` (`required_version` in the module). Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release for new deployments; the floor is compatibility only, not an endorsement of older CLIs.
 
 ### Added
 - Optional `bucket_name` input to use a fixed export bucket name instead of generating one from `resource_name_prefix`. Required together with `terraform import` when adopting an existing bucket.
@@ -16,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - GitHub code scanning still reported S3 versioning (AVD-AWS-0090) and access logging (AVD-AWS-0089) after v1.0.0. Those resources are opt-in and Trivy evaluates `count` from defaults (`false` / `null`), so the bucket looks unconfigured. Ignore them the same way encryption is ignored, and skip scanning `examples/` so the registry copy of the module is not reported as a second finding.
 - Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles). Upgrading from a prior release: remove the old attachment from state (`terraform state rm 'module.<name>.aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access'`) then run `terraform apply` to attach the policy per role.
+
+### Changed
+- Documented module floors: Terraform `>= 1.9.0` (new in this release) and AWS provider `>= 5.0` (since v1.0.0). Adopters on v0.x must meet both before upgrading to v1.1.0.
+- Integration CI Terraform matrix oldest pin is `1.9.8` (dropped 1.1.x and 1.5.x). Lint and validate workflows use `~> 1.9.0` as the floor.
 
 ## [1.0.0] - 2026-08-17
 
