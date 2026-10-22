@@ -119,12 +119,9 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   })
 }
 
-resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
-  name       = "allow_worklytics_tenant_bucket_access"
+resource "aws_iam_role_policy_attachment" "allow_worklytics_tenant_bucket_access" {
+  role       = aws_iam_role.for_worklytics_tenant.name
   policy_arn = aws_iam_policy.allow_worklytics_tenant_bucket_access.arn
-  roles = [
-    aws_iam_role.for_worklytics_tenant.name
-  ]
 }
 
 locals {
@@ -167,4 +164,9 @@ resource "local_file" "todo" {
 moved {
   from = local_file.todo
   to   = local_file.todo[0]
+}
+
+moved {
+  from = aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access
+  to   = aws_iam_role_policy_attachment.allow_worklytics_tenant_bucket_access
 }

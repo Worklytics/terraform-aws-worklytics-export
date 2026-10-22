@@ -12,19 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - GitHub code scanning still reported S3 versioning (AVD-AWS-0090) and access logging (AVD-AWS-0089) after v1.0.0. Those resources are opt-in and Trivy evaluates `count` from defaults (`false` / `null`), so the bucket looks unconfigured. Ignore them the same way encryption is ignored, and skip scanning `examples/` so the registry copy of the module is not reported as a second finding.
+- Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles).
 
-## [2.0.0] - 2026-10-22
+## [1.0.0] - 2026-08-17
 
 ### Breaking Changes
-- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
-  standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Callers still on
-  provider v3/v4 must upgrade their AWS provider constraint before adopting this release.
+- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Callers still on provider v3/v4 will need to upgrade.
 
 ### Added
-- Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
-  the export bucket.
-- Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3
-  server access logging when a destination bucket is provided.
+- Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on the export bucket.
+- Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3 server access logging when a destination bucket is provided.
 
 ### Changed
 - Integration CI now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).

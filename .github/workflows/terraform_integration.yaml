@@ -38,11 +38,6 @@ jobs:
           # ends of the supported major range; middle majors assumed OK if these pass
           - '~> 5.0'
           - '~> 6.0'
-        exclude:
-          # latest × ~> 5.0 duplicates 1.10.5 × ~> 5.0; that combo was flaky on
-          # AssumeRoleWithWebIdentity while latest × ~> 6.0 covers branch protection.
-          - terraform_version: latest
-            aws_provider_version: '~> 5.0'
     env:
       CI_SA_EMAIL: gh-actions-tf-aws-export@worklytics-corp.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/432357880585/locations/global/workloadIdentityPools/github-actions/providers/github'
