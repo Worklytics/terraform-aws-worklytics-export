@@ -166,7 +166,3 @@ moved {
   to   = local_file.todo[0]
 }
 
-moved {
-  from = aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access
-  to   = aws_iam_role_policy_attachment.allow_worklytics_tenant_bucket_access
-}

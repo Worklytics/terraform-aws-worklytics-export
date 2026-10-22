@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - GitHub code scanning still reported S3 versioning (AVD-AWS-0090) and access logging (AVD-AWS-0089) after v1.0.0. Those resources are opt-in and Trivy evaluates `count` from defaults (`false` / `null`), so the bucket looks unconfigured. Ignore them the same way encryption is ignored, and skip scanning `examples/` so the registry copy of the module is not reported as a second finding.
-- Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles).
+- Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles). Upgrading from a prior release: remove the old attachment from state (`terraform state rm 'module.<name>.aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access'`) then run `terraform apply` to attach the policy per role.
 
 ## [1.0.0] - 2026-08-17
 
