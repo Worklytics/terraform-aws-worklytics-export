@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         # oldest supported, a couple intermediates, and latest
-        terraform_version: [ '~1.1.0', '~1.5.0', '~1.10.0', 'latest' ]
+        terraform_version: [ '~1.9.0', '~1.10.0', 'latest' ]
     permissions:
       contents: 'read'
       id-token: 'write'

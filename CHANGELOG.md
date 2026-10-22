@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+- Minimum required Terraform version raised to `>= 1.9.0`.
+
 ### Added
 - Optional `bucket_name` input to use a fixed export bucket name instead of generating one from `resource_name_prefix`. Required together with `terraform import` when adopting an existing bucket.
 

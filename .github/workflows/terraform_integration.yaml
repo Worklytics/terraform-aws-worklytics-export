@@ -29,9 +29,7 @@ jobs:
       matrix:
         terraform_version:
           # oldest supported, a couple intermediates, and latest
-          # (1.0 excluded: the `moved` block requires Terraform >= 1.1)
-          - 1.1.9
-          - 1.5.7
+          - 1.9.8
           - 1.10.5
           - latest
         aws_provider_version:
