@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2026-10-22
+## [2.0.0] - 2026-10-22
 
 ### Breaking Changes
 - Minimum required Terraform version raised to `>= 1.9.0` (`required_version` in the module). Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release for new deployments; the floor is compatibility only, not an endorsement of older CLIs.
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles). Upgrading from a prior release: remove the old attachment from state (`terraform state rm 'module.<name>.aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access'`) then run `terraform apply` to attach the policy per role.
 
 ### Changed
-- Documented module floors: Terraform `>= 1.9.0` (new in this release) and AWS provider `>= 5.0` (since v1.0.0). Adopters on v0.x must meet both before upgrading to v1.1.0.
+- Documented module floors: Terraform `>= 1.9.0` (new in this release) and AWS provider `>= 5.0` (since v1.0.0). Adopters on v0.x or v1.0.x must meet both before upgrading to v2.0.0.
 - Integration CI Terraform matrix oldest pin is `1.9.8` (dropped 1.1.x and 1.5.x). Lint and validate workflows use `~> 1.9.0` as the floor.
 
 ## [1.0.0] - 2026-08-17
