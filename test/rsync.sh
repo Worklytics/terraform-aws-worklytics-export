@@ -35,7 +35,7 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     aws sts assume-role-with-web-identity \
       --role-arn "$IAM_ROLE_ARN" \
       --role-session-name "ci-run-${CI_RUN}" \
-      --web-identity-token "$GCP_TOKEN"
+      --web-identity-token "$GCP_TOKEN" >/dev/null
     exit 1
   fi
   echo "AssumeRoleWithWebIdentity failed (attempt ${attempt}/${MAX_ATTEMPTS}), retrying..."
