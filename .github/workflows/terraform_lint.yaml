@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         # fmt is stable across releases; oldest supported + latest is enough
-        terraform_version: [ '~1.1.0', 'latest' ]
+        terraform_version: [ '~1.7.0', 'latest' ]
     permissions:
       contents: 'read'
       id-token: 'write'

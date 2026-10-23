@@ -16,7 +16,7 @@ from Terraform registry:
 ```hcl
 module "worklytics-export" {
   source  = "Worklytics/worklytics-export/aws"
-  version = "~> 0.5.0"
+  version = "~> 2.0.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -26,7 +26,7 @@ module "worklytics-export" {
 via GitHub:
 ```hcl
 module "worklytics-export" {
-  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v0.5.0"
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v2.0.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -59,10 +59,25 @@ This value is useful for a few scenarios:
     this role for S3/etc, use this role's ARN to add exceptions to those policies
     (in AWS IAM logic, explicit deny has precedence over explicit allow)
 
+#### `todo_markdown`
+Markdown with steps to finish Worklytics data-export setup in the Worklytics app (actions outside
+Terraform). The module does not write files; in a local workspace you can persist them with
+`hashicorp/local`:
+
+```tf
+resource "local_file" "worklytics_export_todo" {
+  filename = "TODO - configure export in worklytics.md"
+  content  = module.worklytics_export.todo_markdown
+}
+```
+
+See [examples/basic/](examples/basic/).
+
 ## Compatibility
 
-This module is meant for use with Terraform 1.1+ and the HashiCorp AWS provider `>= 5.0`. If you
-find incompatibilities using those floors, please open an issue.
+This module is meant for use with Terraform 1.7+ (for state cleanup when upgrading from releases
+that wrote setup files via `local_file`) and the HashiCorp AWS provider `>= 5.0`. If you find
+incompatibilities using those floors, please open an issue.
 
 ## Usage Tips
 

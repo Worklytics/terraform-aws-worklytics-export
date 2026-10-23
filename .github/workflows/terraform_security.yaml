@@ -27,6 +27,7 @@ jobs:
         with:
           scan-type: config       # IaC / misconfiguration scanner
           scan-ref: .
+          skip-dirs: examples,.github
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH,MEDIUM
@@ -45,6 +46,7 @@ jobs:
         with:
           scan-type: config
           scan-ref: .
+          skip-dirs: examples,.github
           format: table
           severity: CRITICAL,HIGH
           exit-code: '1'          # fail the job on CRITICAL or HIGH findings

@@ -7,19 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-> **Next release should be `1.0.0`.** Raising the AWS provider floor from `>= 3.0` to
-> `>= 5.0` is a breaking change for callers still on provider v3/v4.
+## [2.0.0] - TBD
+
+> **Breaking release.** Requires Terraform `>= 1.7` for the `removed` block that drops legacy
+> `local_file` resources from state without deleting on-disk setup instructions.
 
 ### Added
 - Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
   the export bucket.
 - Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3
   server access logging when a destination bucket is provided.
+- GitHub Actions workflow `terraform_security.yaml` running [Trivy](https://trivy.dev/) config
+  scans on module Terraform (SARIF to GitHub Security; fails on CRITICAL/HIGH).
 
 ### Changed
 - Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
   standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Integration CI
   now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
+- `todo_markdown` is always set (no longer gated by `todos_as_outputs`).
+
+### Removed
+- HashiCorp `local` provider usage inside the module (`local_file` for setup instructions).
+- Variables `todos_as_outputs` and `todos_as_local_files`. To write setup instructions to disk,
+  use `local_file` in your root module with `module.<name>.todo_markdown` (see
+  `examples/basic/`).
 
 ## [0.5.0] - 2026-05-05
 
