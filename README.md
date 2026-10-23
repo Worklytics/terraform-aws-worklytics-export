@@ -14,7 +14,7 @@ configuration and adapt it to your requirements.
 
 from Terraform registry:
 ```hcl
-module "worklytics-export" {
+module "worklytics_export" {
   source  = "Worklytics/worklytics-export/aws"
   version = "~> 2.0.0"
 
@@ -25,7 +25,7 @@ module "worklytics-export" {
 
 via GitHub:
 ```hcl
-module "worklytics-export" {
+module "worklytics_export" {
   source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v2.0.0"
 
   # numeric ID of your Worklytics Tenant SA

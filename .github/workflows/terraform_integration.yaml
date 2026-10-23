@@ -75,13 +75,13 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: 'Pin AWS provider version for test matrix'
-        # Writes a standalone required_providers declaration so terraform init
-        # resolves exactly the provider series under test. GitHub Actions
-        # expands ${{ }} before the shell runs, so the HCL literal is safe.
-        # The intersection with the module's ">= 5.0" floor is also satisfied.
+        # Writes an override required_providers block so terraform init resolves
+        # exactly the AWS series under test while merging with examples/basic's
+        # local provider pin. GitHub Actions expands ${{ }} before the shell
+        # runs, so the HCL literal is safe.
         working-directory: examples/basic
         run: |
-          cat > aws_provider_version_test.tf << 'TFEOF'
+          cat > aws_provider_version_test_override.tf << 'TFEOF'
           terraform {
             required_providers {
               aws = {
