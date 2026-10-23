@@ -13,6 +13,6 @@ output "worklytics_tenant_aws_role" {
 }
 
 output "todo_markdown" {
-  value       = var.todos_as_outputs ? local.todo_content : null
-  description = "Actions that must be performed outside of Terraform (markdown format)."
+  value       = local.todo_content
+  description = "Actions that must be performed outside of Terraform (markdown format). Write to a file in your root module with `local_file` if desired (see examples/basic/)."
 }
