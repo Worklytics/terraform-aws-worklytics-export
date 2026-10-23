@@ -1,5 +1,8 @@
-# Encryption is intentionally left to consumers so they can compose with their
-# own aws_s3_bucket_server_side_encryption_configuration / KMS key setup.
-# See README "Customize" guidance and the KMS TODO in main.tf.
+# Encryption, versioning, and access logging are opt-in so callers can compose
+# with their own aws_s3_bucket_* resources / KMS keys. Trivy evaluates `count`
+# from variable defaults (all off), so it still flags the bucket unless ignored.
+# See README "Customize" / "Enable Bucket Versioning" / "Enable Access Logging".
 AVD-AWS-0088
 AVD-AWS-0132
+AVD-AWS-0089
+AVD-AWS-0090

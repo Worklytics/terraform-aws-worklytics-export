@@ -18,6 +18,7 @@ module "worklytics_export" {
   version = "~> 2.0.0"
 
   resource_name_prefix = var.resource_name_prefix
+  bucket_name          = var.bucket_name
   worklytics_tenant_id = var.worklytics_tenant_id
   worklytics_host      = var.worklytics_host
 }

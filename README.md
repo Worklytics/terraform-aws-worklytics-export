@@ -75,19 +75,43 @@ See [examples/basic/](examples/basic/).
 
 ## Compatibility
 
-This module is meant for use with Terraform 1.7+ (for state cleanup when upgrading from releases
-that wrote setup files via `local_file`) and the HashiCorp AWS provider `>= 5.0`. If you find
-incompatibilities using those floors, please open an issue.
+Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release and the HashiCorp AWS provider `>= 5.0`. That is what we recommend and what our CI exercises most closely (`latest` in workflows).
+
+The module declares `required_version = ">= 1.9.0"` so older Terraform CLIs can still run it when necessary, and we keep a small CI matrix on past minors (for example `1.9.x`) to catch regressions. Meeting the floor is **compatibility**, not an endorsement: versions below the latest supported Terraform line may be out of HashiCorp’s support window and should not be chosen for new work.
+
+Upgrading from releases that wrote setup instructions via module `local_file`: run `terraform apply` on v2.0.0+ so the module `removed` block clears that state; persist instructions with root-module `local_file` and `todo_markdown` if you still want a TODO file (see above).
+
+If you hit incompatibilities within the declared floors, please open an issue.
 
 ## Usage Tips
 
+### Custom or Existing Bucket Name
+
+By default, the module generates a unique bucket name from `resource_name_prefix` (AWS appends a random suffix to `bucket_prefix`). To choose the exact bucket name yourself, set `bucket_name`:
+
+```tf
+module "worklytics_export" {
+  # ...
+  bucket_name = "my-company-worklytics-export"
+}
+```
+
 ### Existing Bucket
 
-If you wish to export Worklytics data to an existing bucket, use a Terraform import as follows:
+To export Worklytics data to a bucket that already exists in your AWS account, you must **both** set `bucket_name` to that bucket's name **and** import it into Terraform state. Import alone is not sufficient: without `bucket_name`, the module will plan creation of a new bucket with a generated name, which will not match your existing bucket.
+
+```tf
+module "worklytics_export" {
+  # ...
+  bucket_name = "my-existing-export-bucket"
+}
+```
 
 ```bash
-terraform import module.worklytics_export.aws_s3_bucket.worklytics_export <bucket_name>
+terraform import module.worklytics_export.aws_s3_bucket.worklytics_export my-existing-export-bucket
 ```
+
+After import, run `terraform plan` to confirm the module only manages settings you expect (public access block, versioning, access logging, etc.). You may disable individual bucket settings via module variables (for example, `enable_aws_s3_bucket_public_access_block = false`) if the bucket already has equivalent configuration managed elsewhere.
 
 ### Customize Public Access Block
 By default, we set a restrictive public access block on the bucket.  If you need something more

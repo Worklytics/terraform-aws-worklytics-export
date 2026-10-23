@@ -27,12 +27,17 @@ jobs:
         with:
           scan-type: config       # IaC / misconfiguration scanner
           scan-ref: .
-          skip-dirs: examples,.github
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH,MEDIUM
+          # Otherwise SARIF includes LOW findings (e.g. AVD-AWS-0089) even when
+          # `severity` is MEDIUM+; those then linger in the GitHub Security tab.
+          limit-severities-for-sarif: 'true'
           exit-code: '0'          # don't fail the step; let the upload + summary decide
-          trivyignores: .trivyignore   # optional: add this file to the repo to suppress false positives
+          trivyignores: .trivyignore
+          # examples/basic-remote pulls Worklytics/worklytics-export/aws from the
+          # registry; scanning that copy duplicates root-module findings.
+          skip-dirs: examples,.github
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
@@ -46,7 +51,8 @@ jobs:
         with:
           scan-type: config
           scan-ref: .
-          skip-dirs: examples,.github
           format: table
           severity: CRITICAL,HIGH
           exit-code: '1'          # fail the job on CRITICAL or HIGH findings
+          trivyignores: .trivyignore
+          skip-dirs: examples,.github

@@ -7,37 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - TBD
+## [2.0.0] - 2026-10-22
 
-> **Breaking release.** Requires Terraform `>= 1.7` for the `removed` block that drops legacy
-> `local_file` resources from state without deleting on-disk setup instructions.
+### Breaking Changes
+- Minimum required Terraform version raised to `>= 1.9.0` (`required_version` in the module). Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release for new deployments; the floor is compatibility only, not an endorsement of older CLIs.
+- HashiCorp `local` provider usage removed from the module (`local_file` for setup instructions). Variables `todos_as_outputs` and `todos_as_local_files` are removed. `todo_markdown` is always set; write setup instructions to disk with `local_file` in your root module (see `examples/basic/`). A `removed` block drops legacy module `local_file` state without deleting on-disk files.
 
 ### Added
-- Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on
-  the export bucket.
-- Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3
-  server access logging when a destination bucket is provided.
-- GitHub Actions workflow `terraform_security.yaml` running [Trivy](https://trivy.dev/) config
-  scans on module Terraform (SARIF to GitHub Security; fails on CRITICAL/HIGH).
+- Optional `bucket_name` input to use a fixed export bucket name instead of generating one from `resource_name_prefix`. Required together with `terraform import` when adopting an existing bucket.
+
+### Fixed
+- GitHub code scanning still reported S3 versioning (AVD-AWS-0090) and access logging (AVD-AWS-0089) after v1.0.0. Those resources are opt-in and Trivy evaluates `count` from defaults (`false` / `null`), so the bucket looks unconfigured. Ignore them the same way encryption is ignored, and skip scanning `examples/` so the registry copy of the module is not reported as a second finding.
+- Replaced `aws_iam_policy_attachment` with `aws_iam_role_policy_attachment` so multiple module instances in the same AWS account no longer contend for one shared attachment name (which broke parallel integration tests and could detach bucket access from other roles). Upgrading from a prior release: remove the old attachment from state (`terraform state rm 'module.<name>.aws_iam_policy_attachment.allow_worklytics_tenant_bucket_access'`) then run `terraform apply` to attach the policy per role.
 
 ### Changed
-- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the
-  standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Integration CI
-  now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
-- `todo_markdown` is always set (no longer gated by `todos_as_outputs`).
+- Documented module floors: Terraform `>= 1.9.0` (new in this release) and AWS provider `>= 5.0` (since v1.0.0). Adopters on v0.x or v1.0.x must meet both before upgrading to v2.0.0.
+- Integration CI Terraform matrix oldest pin is `1.9.8` (dropped 1.1.x and 1.5.x). Lint and validate workflows use `~> 1.9.0` as the floor.
 
-### Removed
-- HashiCorp `local` provider usage inside the module (`local_file` for setup instructions).
-- Variables `todos_as_outputs` and `todos_as_local_files`. To write setup instructions to disk,
-  use `local_file` in your root module with `module.<name>.todo_markdown` (see
-  `examples/basic/`).
+## [1.0.0] - 2026-08-17
+
+### Breaking Changes
+- Minimum required AWS provider version raised from `>= 3.0` to `>= 5.0`, required by the standalone `aws_s3_bucket_versioning` and `aws_s3_bucket_logging` resources. Callers still on provider v3/v4 will need to upgrade.
+
+### Added
+- Optional `enable_aws_s3_bucket_versioning` flag (default `false`) to enable versioning on the export bucket.
+- Optional `aws_s3_access_log_bucket` / `aws_s3_access_log_prefix` inputs to configure S3 server access logging when a destination bucket is provided.
+
+### Changed
+- Integration CI now matrices AWS provider majors `~> 5.0` and `~> 6.0` (dropped `~> 3.0`).
 
 ## [0.5.0] - 2026-05-05
 
 ### Changed
-- AWS provider floor retained at `>= 3.0` (unchanged). The module's resource usage
-  (`aws_s3_bucket_public_access_block`, `aws_iam_*`, etc.) only requires v2.42+, so
-  the original floor remains accurate.
+- AWS provider floor retained at `>= 3.0` (unchanged). The module's resource usage (`aws_s3_bucket_public_access_block`, `aws_iam_*`, etc.) only requires v2.42+, so the original floor remains accurate.
 - Updated GitHub Actions workflow action versions:
   - `actions/checkout` v3 → v6
   - `hashicorp/setup-terraform` v2 → v3
@@ -46,9 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Slimmed CI Terraform version matrices:
   - lint: oldest supported (`~1.1.0`) + `latest`
   - validate / integration: oldest, a couple intermediates, and latest
-- Integration also matrices AWS provider majors `~> 3.0` and `~> 6.0`, with
-  workflow concurrency + `max-parallel` to limit contention on the shared CI account.
-  Terraform 1.0 is excluded because the `moved` block requires `>= 1.1`.
+- Integration also matrices AWS provider majors `~> 3.0` and `~> 6.0`, with workflow concurrency + `max-parallel` to limit contention on the shared CI account. Terraform 1.0 is excluded because the `moved` block requires `>= 1.1`.
 
 ## [0.4.0] - 2024-03-08
 
@@ -63,10 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2023-xx-xx
 
 ### Added
-- Restrictive `aws_s3_bucket_public_access_block` on S3 bucket (enabled by default,
-  controllable via `enable_aws_s3_bucket_public_access_block` variable).
-- `todo_markdown` output for environments where filesystem access is limited
-  (e.g., Terraform Cloud/Enterprise).
+- Restrictive `aws_s3_bucket_public_access_block` on S3 bucket (enabled by default, controllable via `enable_aws_s3_bucket_public_access_block` variable).
+- `todo_markdown` output for environments where filesystem access is limited (e.g., Terraform Cloud/Enterprise).
 
 ## [0.1.0] - 2023-xx-xx
 

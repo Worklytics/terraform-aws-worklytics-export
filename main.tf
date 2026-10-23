@@ -1,5 +1,7 @@
 
 terraform {
+  required_version = ">= 1.9.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -46,7 +48,8 @@ resource "aws_iam_role" "for_worklytics_tenant" {
 
 resource "aws_s3_bucket" "worklytics_export" {
 
-  bucket_prefix = replace(lower(var.resource_name_prefix), "_", "-")
+  bucket        = var.bucket_name
+  bucket_prefix = var.bucket_name == null ? replace(lower(var.resource_name_prefix), "_", "-") : null
 
   lifecycle {
     ignore_changes = [
@@ -118,12 +121,9 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   })
 }
 
-resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
-  name       = "allow_worklytics_tenant_bucket_access"
+resource "aws_iam_role_policy_attachment" "allow_worklytics_tenant_bucket_access" {
+  role       = aws_iam_role.for_worklytics_tenant.name
   policy_arn = aws_iam_policy.allow_worklytics_tenant_bucket_access.arn
-  roles = [
-    aws_iam_role.for_worklytics_tenant.name
-  ]
 }
 
 locals {
@@ -163,3 +163,4 @@ removed {
     destroy = false
   }
 }
+
