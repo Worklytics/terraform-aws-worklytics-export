@@ -1,5 +1,7 @@
 
 terraform {
+  required_version = ">= 1.9.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -119,12 +121,9 @@ resource "aws_iam_policy" "allow_worklytics_tenant_bucket_access" {
   })
 }
 
-resource "aws_iam_policy_attachment" "allow_worklytics_tenant_bucket_access" {
-  name       = "allow_worklytics_tenant_bucket_access"
+resource "aws_iam_role_policy_attachment" "allow_worklytics_tenant_bucket_access" {
+  role       = aws_iam_role.for_worklytics_tenant.name
   policy_arn = aws_iam_policy.allow_worklytics_tenant_bucket_access.arn
-  roles = [
-    aws_iam_role.for_worklytics_tenant.name
-  ]
 }
 
 locals {
@@ -168,3 +167,4 @@ moved {
   from = local_file.todo
   to   = local_file.todo[0]
 }
+

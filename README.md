@@ -16,7 +16,7 @@ from Terraform registry:
 ```hcl
 module "worklytics-export" {
   source  = "Worklytics/worklytics-export/aws"
-  version = "~> 1.0.0"
+  version = "~> 2.0.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -26,7 +26,7 @@ module "worklytics-export" {
 via GitHub:
 ```hcl
 module "worklytics-export" {
-  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v1.0.0"
+  source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v2.0.0"
 
   # numeric ID of your Worklytics Tenant SA
   worklytics_tenant_id = "123123123123"
@@ -61,8 +61,11 @@ This value is useful for a few scenarios:
 
 ## Compatibility
 
-This module is meant for use with Terraform 1.1+ and the HashiCorp AWS provider `>= 5.0`. If you
-find incompatibilities using those floors, please open an issue.
+Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release and the HashiCorp AWS provider `>= 5.0`. That is what we recommend and what our CI exercises most closely (`latest` in workflows).
+
+The module declares `required_version = ">= 1.9.0"` so older Terraform CLIs can still run it when necessary, and we keep a small CI matrix on past minors (for example `1.9.x`) to catch regressions. Meeting the floor is **compatibility**, not an endorsement: versions below the latest supported Terraform line may be out of HashiCorp’s support window and should not be chosen for new work.
+
+If you hit incompatibilities within the declared floors, please open an issue.
 
 ## Usage Tips
 
