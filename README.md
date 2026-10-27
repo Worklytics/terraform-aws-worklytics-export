@@ -14,7 +14,7 @@ configuration and adapt it to your requirements.
 
 from Terraform registry:
 ```hcl
-module "worklytics-export" {
+module "worklytics_export" {
   source  = "Worklytics/worklytics-export/aws"
   version = "~> 2.0.0"
 
@@ -25,7 +25,7 @@ module "worklytics-export" {
 
 via GitHub:
 ```hcl
-module "worklytics-export" {
+module "worklytics_export" {
   source  = "git::https://github.com/worklytics/terraform-aws-worklytics-export/?ref=v2.0.0"
 
   # numeric ID of your Worklytics Tenant SA
@@ -59,11 +59,27 @@ This value is useful for a few scenarios:
     this role for S3/etc, use this role's ARN to add exceptions to those policies
     (in AWS IAM logic, explicit deny has precedence over explicit allow)
 
+#### `todo_markdown`
+Markdown with steps to finish Worklytics data-export setup in the Worklytics app (actions outside
+Terraform). The module does not write files; in a local workspace you can persist them with
+`hashicorp/local`:
+
+```tf
+resource "local_file" "worklytics_export_todo" {
+  filename = "TODO - configure export in worklytics.md"
+  content  = module.worklytics_export.todo_markdown
+}
+```
+
+See [examples/basic/](examples/basic/).
+
 ## Compatibility
 
 Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release and the HashiCorp AWS provider `>= 5.0`. That is what we recommend and what our CI exercises most closely (`latest` in workflows).
 
 The module declares `required_version = ">= 1.9.0"` so older Terraform CLIs can still run it when necessary, and we keep a small CI matrix on past minors (for example `1.9.x`) to catch regressions. Meeting the floor is **compatibility**, not an endorsement: versions below the latest supported Terraform line may be out of HashiCorp’s support window and should not be chosen for new work.
+
+Upgrading from releases that wrote setup instructions via module `local_file`: run `terraform apply` on v2.0.0+ so the module `removed` block clears that state; persist instructions with root-module `local_file` and `todo_markdown` if you still want a TODO file (see above).
 
 If you hit incompatibilities within the declared floors, please open an issue.
 

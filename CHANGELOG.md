@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 - Minimum required Terraform version raised to `>= 1.9.0` (`required_version` in the module). Use a [currently supported](https://developer.hashicorp.com/terraform/install) Terraform release for new deployments; the floor is compatibility only, not an endorsement of older CLIs.
+- HashiCorp `local` provider usage removed from the module (`local_file` for setup instructions). Variables `todos_as_outputs` and `todos_as_local_files` are removed. `todo_markdown` is always set; write setup instructions to disk with `local_file` in your root module (see `examples/basic/`). A `removed` block drops legacy module `local_file` state without deleting on-disk files.
 
 ### Added
 - Optional `bucket_name` input to use a fixed export bucket name instead of generating one from `resource_name_prefix`. Required together with `terraform import` when adopting an existing bucket.

@@ -4,6 +4,13 @@
 terraform {
   backend "local" {
   }
+
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.4"
+    }
+  }
 }
 
 module "worklytics_export" {
@@ -14,8 +21,11 @@ module "worklytics_export" {
   bucket_name          = var.bucket_name
   worklytics_tenant_id = var.worklytics_tenant_id
   worklytics_host      = var.worklytics_host
-  todos_as_outputs     = var.todos_as_outputs
-  todos_as_local_files = var.todos_as_local_files
+}
+
+resource "local_file" "todo" {
+  filename = "TODO - configure export in worklytics.md"
+  content  = module.worklytics_export.todo_markdown
 }
 
 output "worklytics_export_bucket_id" {

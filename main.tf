@@ -154,17 +154,13 @@ Alternatively, you may follow the manual instructions below:
 EOT
 }
 
-resource "local_file" "todo" {
-  count = var.todos_as_local_files ? 1 : 0
-
-  filename = "TODO - configure export in worklytics.md"
-
-  content = local.todo_content
-}
-
-# moved in 0.4.0
-moved {
+# 2.0.0: setup instructions are exposed via `todo_markdown` output only; write files in the
+# root module (see examples/basic/). Drop module state entries without deleting on-disk files.
+removed {
   from = local_file.todo
-  to   = local_file.todo[0]
+
+  lifecycle {
+    destroy = false
+  }
 }
 

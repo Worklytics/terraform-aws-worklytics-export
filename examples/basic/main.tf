@@ -6,6 +6,13 @@ terraform {
   backend "local" {
     path = "terraform.tfstate"
   }
+
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.4"
+    }
+  }
 }
 
 # provider just for example purposes; in real use, you likely already have an AWS provider block
@@ -21,14 +28,17 @@ provider "aws" {
   ]
 }
 
-
-
 module "worklytics_export" {
   source = "../../"
 
   resource_name_prefix = var.resource_name_prefix
   bucket_name          = var.bucket_name
   worklytics_tenant_id = var.worklytics_tenant_id
+}
+
+resource "local_file" "todo" {
+  filename = "TODO - configure export in worklytics.md"
+  content  = module.worklytics_export.todo_markdown
 }
 
 output "worklytics_export_bucket_id" {
@@ -38,5 +48,4 @@ output "worklytics_export_bucket_id" {
 output "worklytics_tenant_aws_role_arn" {
   value = module.worklytics_export.worklytics_tenant_aws_role.arn
 }
-
 
